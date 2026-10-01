@@ -70,12 +70,8 @@ export const SEARCH_MUSHROOM_NAMES = gql`
 query SearchMushroomNames($search: String) {
   fungiCollection(
     first: 5,
-    filter: {
-      or: [
-        { name: { ilike: $search } },
-        { preferred_common_name: { ilike: $search } }
-      ]
-    }
+    filter: { search_name: { ilike: $search } },
+    orderBy: [{ obs_count_ger: DescNullsLast }]
   ) {
     edges {
       node {
@@ -93,12 +89,7 @@ export const SEARCH_MUSHROOMS = gql`
 query SearchMushroom($search: String) {
   fungiCollection(
     first: 200,
-    filter: {
-      or: [
-        { name: { ilike: $search } },
-        { preferred_common_name: { ilike: $search } }
-      ]
-    }
+    filter: { search_name: { ilike: $search } }
     orderBy: [{ obs_count_ger: DescNullsLast }]
   ) {
     totalCount

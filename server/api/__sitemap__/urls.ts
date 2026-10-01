@@ -12,117 +12,49 @@ function createSlug(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+// PostgREST caps every response at ~1500 rows, so large tables have to be read in pages
+const PAGE_SIZE = 1000
+async function fetchAll(table: 'fungi' | 'taxa', filter?: (q: any) => any) {
+  const rows: { id: number, name: string, preferred_common_name: string | null }[] = []
+  for (let from = 0; ; from += PAGE_SIZE) {
+    let query = supabase.from(table).select('id, name, preferred_common_name')
+    if (filter) query = filter(query)
+    const { data, error } = await query.order('id').range(from, from + PAGE_SIZE - 1)
+    if (error) throw error
+    rows.push(...(data ?? []))
+    if (!data || data.length < PAGE_SIZE) return rows
+  }
+}
+
+const detailUrl = (prefix: string, row: { id: number, name: string, preferred_common_name: string | null }) =>
+  ({ loc: `${prefix}/${row.id}-${createSlug(row.preferred_common_name || row.name)}` })
+
 export default defineSitemapEventHandler(async () => {
-  const now = new Date().toISOString()
+  const seasonPages = ['spring', 'summer', 'autumn', 'winter'].map(season => ({ loc: `/season/${season}` }))
 
-  // season pages
-  const seasons = ['spring', 'summer', 'autumn', 'winter'];
-  const seasonPages = seasons.map(season => ({
-    loc: `/season/${season}`,
-    lastmod: now,
-    changefreq: 'monthly',
-    priority: 0.8
-  }));
+  const topEdiblePages = ['all', 'spring', 'summer', 'autumn', 'winter'].map(season => ({ loc: `/top-edible/${season}` }))
 
-  // top edible pages
-  const pages = ['all', 'spring', 'summer', 'autumn', 'winter'];
-  const topEdiblePages = pages.map(season => ({
-    loc: `/top-edible/${season}`,
-    lastmod: now,
-    changefreq: 'monthly',
-    priority: 0.8
-  }));
-
-  // regional pages
   const stateCodes = [
     'de-bw', 'de-by', 'de-be', 'de-bb', 'de-hb', 'de-hh', 'de-he', 'de-mv',
     'de-ni', 'de-nw', 'de-rp', 'de-sl', 'de-sn', 'de-st', 'de-sh', 'de-th'
   ]
-
-  const regionPages = stateCodes.map(code => ({
-    loc: `/region/${code}`,
-    lastmod: now,
-    changefreq: 'monthly',
-    priority: 0.9
-  }))
-
-
-  const allShrooms = []
-  let from = 0
-  const step = 1000
-  let hasMore = true
+  const regionPages = stateCodes.map(code => ({ loc: `/region/${code}` }))
 
   try {
-    while (hasMore) {
-      const { data, error } = await supabase
-        .from('fungi')
-        .select('id, name, preferred_common_name')
-        .range(from, from + step - 1)
-        .order('id', { ascending: true })
-
-      if (error) {
-        console.error('Fetch error:', error)
-        break
-      }
-
-      if (data && data.length > 0) {
-        allShrooms.push(...data)
-        from += step
-        if (data.length < step) hasMore = false
-      } else {
-        hasMore = false
-      }
-
-      if (from > 15000) hasMore = false
-    }
-
-    // Mushroom pages
-    const mushroomPages = allShrooms.map((shroom) => {
-      const displayName = shroom.preferred_common_name || shroom.name
-      return {
-        loc: `/mushroom/${shroom.id}-${createSlug(displayName)}`,
-        lastmod: now,
-        changefreq: 'weekly',
-        priority: 0.5
-      }
-    })
-
+    const shrooms = await fetchAll('fungi')
     // taxa pages (Ordnung/Familie/Gattung)
-    const { data: taxa, error: taxaError } = await supabase
-      .from('taxa')
-      .select('id, name, preferred_common_name')
-      .in('rank_level', [20, 30, 40])
-
-    if (taxaError) console.error('Taxa fetch error:', taxaError)
-
-    const taxaPages = (taxa ?? []).map((taxon) => {
-      const displayName = taxon.preferred_common_name || taxon.name
-      return {
-        loc: `/taxa/${taxon.id}-${createSlug(displayName)}`,
-        lastmod: now,
-        changefreq: 'monthly',
-        priority: 0.6
-      }
-    })
-
-    const taxaOverviewPage = [{
-      loc: `/taxa`,
-      lastmod: now,
-      changefreq: 'monthly',
-      priority: 0.7
-    }]
+    const taxa = await fetchAll('taxa', q => q.in('rank_level', [20, 30, 40]))
 
     return [
       ...seasonPages,
       ...topEdiblePages,
-      ...mushroomPages,
+      ...shrooms.map(s => detailUrl('/mushroom', s)),
       ...regionPages,
-      ...taxaOverviewPage,
-      ...taxaPages
+      { loc: '/taxa' },
+      ...taxa.map(t => detailUrl('/taxa', t))
     ]
-
   } catch (e) {
     console.error('Sitemap Loop Error:', e)
-    return [...seasonPages, ...topEdiblePages] // Still return the seasons and top edible pages even if the DB fetch fails
+    return [...seasonPages, ...topEdiblePages, ...regionPages] // static pages still work if the DB fetch fails
   }
 })

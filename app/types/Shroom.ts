@@ -20,7 +20,7 @@ export default interface Shroom {
   season_to?: number
   edibility?: 'excellent' | 'good' | 'inedible'
   toxicity?: 'toxic' | 'deadly'
-  look_alikes?: number[]
+  look_alikes?: string[] // id_123 values of look-alike species
   description?: string | null // v2: fertiger Fließtext zur Morphologie, ersetzt die Facetten-Aufzählung wo vorhanden
   occurrence_text?: string | null // v2: Fließtext zu Habitat/Substrat/Saison
   occurrence_trees?: string[] | null // v2: konkrete Baumarten aus kontrolliertem Vokabular

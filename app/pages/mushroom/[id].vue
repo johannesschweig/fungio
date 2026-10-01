@@ -20,7 +20,8 @@ const id = computed(() => {
   return param.includes('-') ? Number(param.split('-')[0]) : Number(param)
 })
 
-const { shroom, loading } = useMushroomById(id)
+const { shroom, loading, ready } = useMushroomById(id)
+await ready // look-alike ids must be known before the look-alike query runs, so SSR includes them
 
 const lookAlikeIds = computed(() => shroom.value?.look_alikes ?? [])
 const { lookAlikes } = useMushroomLookAlikes(lookAlikeIds)
@@ -31,7 +32,7 @@ watch(shroom, (newShroom) => {
     const currentParam = String(route.params.id)
     const slug = createSlug(newShroom.preferred_common_name || newShroom.name)
     const newParam = `${newShroom.id}-${slug}`
-    if (currentParam !== newParam) navigateTo(`/mushroom/${newParam}`, { replace: true })
+    if (currentParam !== newParam) navigateTo(`/mushroom/${newParam}`, { replace: true, redirectCode: 301 })
   }
 }, { immediate: true })
 
@@ -87,7 +88,6 @@ useSchemaOrg([
     author: [{ name: 'Fungio Experten-Team', url: 'https://fungio.de' }],
   }),
 
-  // TODO look alikes not working
 ])
 
 useSeoMeta({
@@ -95,7 +95,7 @@ useSeoMeta({
   ogTitle: title,
   description,
   ogDescription: description,
-  ogUrl: fullUrl.value,
+  ogUrl: fullUrl,
   ogImage: image,
   ogType: 'article'
 })

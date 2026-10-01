@@ -3,7 +3,7 @@ import MushroomIcon from '@/assets/mushroom.svg'
 import type Shroom from '@/types/Shroom'
 import { computed } from 'vue';
 import { useStore } from '@/stores/store'
-import { getMushroomIcon, getMushroomUrl, capitalizeFirstLetter, GERMAN_MONTHS } from '@/utils/utils'
+import { getMushroomIcon, getMushroomUrl, capitalizeFirstLetter, normalizeSearch, GERMAN_MONTHS } from '@/utils/utils'
 
 const props = withDefaults(defineProps<{
   shroom: Shroom,
@@ -21,17 +21,22 @@ const iconData = computed(() => getMushroomIcon(props.shroom))
 function highlightMatch(text: string) {
   text = capitalizeFirstLetter(text)
   if (!props.highlight) return text
-  const query = store.search
+  const query = normalizeSearch(store.search)
   if (!query) return text
-  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi')
-  const parts = text.split(regex)
-  return parts.map((part, _idx) => {
-    if (part.toLowerCase() === query.toLowerCase()) {
-      return `<span class="bg-amber-100 text-stone-950 rounded-lg py-1">${part}</span>`
-    } else {
-      return part
+  // find the match in the normalized text, then map it back to the original characters
+  let normalized = ''
+  const origin: number[] = []
+  for (let i = 0; i < text.length; i++) {
+    for (const ch of normalizeSearch(text[i])) {
+      normalized += ch
+      origin.push(i)
     }
-  }).join('')
+  }
+  const start = normalized.indexOf(query)
+  if (start < 0) return text
+  const from = origin[start]
+  const to = origin[start + query.length - 1] + 1
+  return `${text.slice(0, from)}<span class="bg-amber-100 text-stone-950 rounded-lg py-1">${text.slice(from, to)}</span>${text.slice(to)}`
 }
 
 const seasonRange = computed(() => {

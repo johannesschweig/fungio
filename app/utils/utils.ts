@@ -124,6 +124,19 @@ export function getInaturalistImageUrl(photo: string, size: "square" | "small" |
   return photo.replace("square", size)
 }
 
+// fungi.search_name holds the lowercased names with umlauts folded (ä->ae, ß->ss, ...) and
+// hyphens/spaces removed (see migrations/fungi_search_name.sql). Typed text and displayed
+// names are normalized the same way, so "wiesenchampignon" finds "Wiesen-Champignon".
+export function normalizeSearch(text: string): string {
+  return text.toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[-–—\s]+/g, '')
+}
+
+export function toSearchPattern(query: string): string {
+  return `%${normalizeSearch(query)}%`
+}
+
 export function capitalizeFirstLetter(str: string): string {
   if (!str) return ''
   return str.charAt(0).toUpperCase() + str.slice(1)

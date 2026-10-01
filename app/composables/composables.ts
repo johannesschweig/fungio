@@ -23,10 +23,11 @@ export function useMushroomById(id: Ref<number> | number) {
   const variables = computed(() => ({ id: idRef.value }))
 
   // Correct syntax: query, variables, clientId (optional), options (optional)
-  const { data: shroom, pending: loading, error } = useAsyncQuery(
+  const query = useAsyncQuery(
     GET_SHROOM_BY_ID,
     variables
   )
+  const { data: shroom, pending: loading, error } = query
 
   const flatShroom = computed(() =>
     shroom.value ? flattenFungi(shroom.value.fungiCollection.edges[0]?.node) : null
@@ -52,7 +53,8 @@ export function useMushroomById(id: Ref<number> | number) {
       })
   }, { immediate: true })
 
-  return { shroom: flatShroom, loading, error }
+  // `ready` lets the page wait for the shroom during SSR (needed to know the look-alike ids)
+  return { shroom: flatShroom, loading, error, ready: query }
 }
 
 export function useRandomFungiWithPhoto() {
@@ -96,7 +98,7 @@ export function useSearchMushroomNames(queryRef: Ref<string>) {
     if (val && val.length > 3) {
       loading.value = true
       try {
-        await load(SEARCH_MUSHROOM_NAMES, { search: `%${val}%` })
+        await load(SEARCH_MUSHROOM_NAMES, { search: toSearchPattern(val) })
       } catch (e) {
         console.error('Error searching mushroom names:', e)
         error.value = e as any
@@ -132,7 +134,7 @@ export function useSearchShrooms() {
   const searchQuery = computed(() => store.search)
 
   const variables = computed(() => ({
-    search: searchQuery.value ? `%${searchQuery.value}%` : ''
+    search: searchQuery.value ? toSearchPattern(searchQuery.value) : ''
   }))
 
   const enabled = computed(() => searchQuery.value.length > 0)
@@ -166,10 +168,8 @@ export function useSearchShrooms() {
   return { filteredShrooms, loading, error, totalCount, refresh }
 }
 
-export function useMushroomLookAlikes(lookAlikeIds: Ref<number[]>) {
-  const variables = computed(() => ({
-    ids: lookAlikeIds.value.length > 0 ? lookAlikeIds.value : [0] // Provide default to avoid empty query
-  }))
+export function useMushroomLookAlikes(lookAlikeIds: Ref<string[]>) {
+  const variables = computed(() => ({ ids: lookAlikeIds.value }))
 
   const { data, pending: loading, error, refresh } = useAsyncQuery(
     GET_LOOK_ALIKE_FUNGI,
