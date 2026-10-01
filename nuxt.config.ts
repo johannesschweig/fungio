@@ -14,6 +14,7 @@ export default defineNuxtConfig({
   ],
   site: {
     url: 'https://fungio.de',
+    name: 'Fungio',
   },
   sitemap: {
     sources: [

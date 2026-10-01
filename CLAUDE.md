@@ -1,4 +1,4 @@
-# Fungio (shroomy)
+# Fungio
 
 Deutschsprachiger Pilzführer. Nuxt 4 / Vue 3 App, Supabase als Backend (Postgres + PostgREST + pg_graphql), Pinia für globalen State, Tailwind fürs Styling.
 
