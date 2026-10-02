@@ -129,6 +129,14 @@ Was daraus folgt:
   Traffic: Betrifft vor allem die Detailseite (~90 % der Besucher). Auf dem Handy ist das erste Galeriebild ganz oben sichtbar. Der günstigste Fix mit der größten Wirkung.
 
 - [ ] **21. Bilder sind groß, kommen aus den USA und haben keinen Cache-Header (P1, M)**
+  **Umgesetzt im Branch `image-proxy` (noch nicht live), 2026-10-02:** eigener Bild-Proxy (`server/ipx.ts`, IPX + sharp in der Vercel-Funktion, Ergebnis 1 Jahr im Vercel-CDN), WebP, feste Breiten aus `shared/utils/image.ts` (1×/2×), alles andere wird abgelehnt (Schutz vors CPU-Kontingent-Leerziehen). Gemessen im Preview (Browser in DE, 12 nie zuvor angefragte Fotos, Median):
+  | | heute S3 direkt | Proxy kalt (CDN-MISS) | Proxy warm (CDN-HIT) |
+  |---|---|---|---|
+  | erstes Bild der Seite (neue Verbindung zu S3) | 714 ms | ~400 ms | 69 ms |
+  | weitere Bilder | 195 ms | 270–400 ms | 69 ms |
+  | Dateigröße Karte (Handy, 640 px) | 172 KB | 58 KB | 58 KB |
+  | Thumbnail (160 px statt `small`) | ~33–50 KB | 2–8 KB | 2–8 KB |
+  Stolpersteine unterwegs (alle behoben): Vercel kürzt `https://` im Pfad zu `https:/`; das Node-Adapter-Modul von ipx 4 crasht auf Vercel (`ERR_REQUIRE_ESM`) → eigene Route über `createIPXFetchHandler`; sharp-Binaries werden vom Tracer nicht erfasst → Build-Hook kopiert `@img/sharp-*`; ipx' unnötiger HEAD-Request an S3 entfernt (kalt 930 → 400 ms).
   Gemessen: Ein iNaturalist-Bild in `medium` hat 270 KB (JPEG), `small` 67 KB. Ausgeliefert wird es direkt aus S3 in den USA mit ~0,5 s TTFB aus Deutschland und ohne `cache-control`. Die Saisonseite mit 12 Karten lädt so ~3 MB Bilder.
   Fix: `@nuxt/image` mit dem Provider `vercel` (oder Vercel Image Optimization direkt). Das liefert WebP/AVIF in passender Breite (~30–50 KB) und cacht sie am Edge in Frankfurt. Vorher das Vercel-Kontingent für Bildtransformationen prüfen. Minimalvariante: `<link rel="preconnect" href="https://inaturalist-open-data.s3.amazonaws.com">`.
   Traffic: 71 % mobil, oft über Mobilfunk im Wald. 270 KB pro Bild sind dort der größte Bremsklotz. Bei ~1.400 Aufrufen pro Monat bleibt man voraussichtlich im Gratis-Kontingent von Vercel, das aber vorher prüfen.
