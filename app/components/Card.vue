@@ -62,8 +62,9 @@ const seasonRange = computed(() => {
   <!-- Variant list (small) -->
   <NuxtLink v-if="variant === 'list'" :to="getMushroomUrl(shroom)" :key="`${shroom.name}-list`"
     class="grid grid-cols-[80px_1fr_auto] gap-2 md:gap-3 items-center hover:bg-white rounded-lg">
-    <img v-if="shroom.photos && shroom.photos.length && shroom.photos?.[0].url"
-      :src="getInaturalistImageUrl(shroom.photos?.[0].url, 'small')" :alt="shroom.preferred_common_name || shroom.name"
+    <NuxtImg v-if="shroom.photos && shroom.photos.length && shroom.photos?.[0].url"
+      :src="getInaturalistImageUrl(shroom.photos?.[0].url, 'medium')" preset="photo" :width="IMAGE_WIDTHS.thumb" densities="x1 x2"
+      :alt="shroom.preferred_common_name || shroom.name"
       loading="lazy" class="w-20 h-20 object-cover mr-4 rounded-lg" />
     <div v-else class="w-20 h-20 bg-stone-200 mr-4 rounded-lg flex items-center justify-center">
       <MushroomIcon class="w-12 h-12 text-stone-400" />
@@ -86,8 +87,8 @@ const seasonRange = computed(() => {
   <NuxtLink v-else :to="getMushroomUrl(shroom)" :key="`${shroom.name}-large`"
     class="bg-white rounded-2xl border border-tan-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
     <div class="relative h-48 w-full overflow-hidden">
-      <img v-if="shroom.photos && shroom.photos.length && shroom.photos?.[0].url"
-        :src="getInaturalistImageUrl(shroom.photos?.[0].url, 'medium')"
+      <NuxtImg v-if="shroom.photos && shroom.photos.length && shroom.photos?.[0].url"
+        :src="getInaturalistImageUrl(shroom.photos?.[0].url, 'large')" preset="photo" :width="IMAGE_WIDTHS.card" densities="x1 x2"
         :alt="shroom.preferred_common_name || shroom.name" class="w-full h-full object-cover"
         :loading="priority ? 'eager' : 'lazy'" :fetchpriority="priority ? 'high' : undefined" />
       <div v-else class="w-full h-full bg-stone-100 flex items-center justify-center">

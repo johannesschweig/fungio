@@ -20,6 +20,11 @@ const props = defineProps({
   priority: {
     type: Boolean,
     default: false
+  },
+  // photo slot size from IMAGE_WIDTHS (shared/utils/image.ts): 'card' for normal slots, 'hero' for the big desktop photo
+  size: {
+    type: String as PropType<'card' | 'hero'>,
+    default: 'card'
   }
 })
 const showAttribution = ref(false)
@@ -29,8 +34,11 @@ const photo = props.shroom.photos ? props.shroom.photos[props.index] : { 'url': 
 <template>
   <div class="relative rounded-lg shadow-md md:aspect-[3/2] overflow-hidden cursor-pointer md:border-2 md:border-transparent md:hover:border-amber-600">
     <!-- Mushroom image -->
-    <img
-      :src="getInaturalistImageUrl(photo.url, 'medium')"
+    <NuxtImg
+      :src="getInaturalistImageUrl(photo.url, 'large')"
+      preset="photo"
+      :width="IMAGE_WIDTHS[size]"
+      densities="x1 x2"
       :alt="shroom.preferred_common_name"
       class="w-full h-full object-cover"
       :loading="priority ? 'eager' : 'lazy'"
