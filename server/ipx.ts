@@ -9,13 +9,19 @@ const BASE = '/_ipx'
 
 const { imageProxy } = useRuntimeConfig()
 
+const httpStorage = ipxHttpStorage({
+  domains: [imageProxy.domain],
+  blockPrivateIPs: true,
+})
+
 const ipx = createIPX({
-  storage: ipxHttpStorage({
-    domains: [imageProxy.domain],
-    // S3 sends no cache headers; resized photos never change, so browser + Vercel CDN may keep them
-    maxAge: imageProxy.maxAge,
-    blockPrivateIPs: true,
-  }),
+  storage: {
+    ...httpStorage,
+    // ipx normally sends a HEAD to the source first, only to read its cache headers — S3 sends none,
+    // and every round trip from Vercel (Frankfurt) to S3 (us-east-1) costs ~0.2 s on an uncached photo.
+    // Resized photos never change, so browser + Vercel CDN may simply keep them for imageProxy.maxAge.
+    getMeta: async () => ({ maxAge: imageProxy.maxAge }),
+  },
 })
 
 // Vercel collapses the `//` in the embedded source URL (https://… arrives as https:/…)
