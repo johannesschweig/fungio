@@ -1,10 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { cp, readdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { IMAGE_WIDTHS } from './shared/utils/image'
 
-// iNaturalist photos are resized + converted to WebP by our own image proxy (IPX at /_ipx, runs in
-// the Vercel function) and then cached by Vercel's CDN. Only the sizes from IMAGE_WIDTHS (1x + 2x)
-// are allowed (server/middleware/ipx-guard.ts) — otherwise anyone could burn the Vercel Hobby CPU
-// quota by requesting arbitrary widths.
+// iNaturalist photos are resized + converted to WebP by our own image proxy (server/ipx.ts at /_ipx,
+// runs in the Vercel function) and then cached by Vercel's CDN. Only the sizes from IMAGE_WIDTHS
+// (1x + 2x) are allowed — otherwise anyone could burn the Vercel Hobby CPU quota by requesting
+// arbitrary widths.
 const IMAGE_QUALITY = 75
 const IMAGE_DOMAIN = 'inaturalist-open-data.s3.amazonaws.com'
 
@@ -31,12 +34,27 @@ export default defineNuxtConfig({
     presets: {
       photo: { modifiers: { format: 'webp', quality: IMAGE_QUALITY } },
     },
-    ipx: {
-      http: {
-        // S3 sends no cache headers; resized photos never change, so let browser + CDN keep them for a year
-        maxAge: 60 * 60 * 24 * 365,
-        blockPrivateIPs: true,
-      },
+  },
+  // our own /_ipx handler — @nuxt/image sees it and skips registering its own (see server/ipx.ts why)
+  serverHandlers: [
+    { route: '/_ipx/**', handler: '~~/server/ipx.ts' },
+  ],
+  hooks: {
+    // sharp picks its native binary via require('@img/sharp-<platform>/sharp.node') inside a switch,
+    // which the server bundle's dependency tracer doesn't follow — so the binaries would be missing
+    // on Vercel. Copy whatever platform packages npm installed (linux-x64 on Vercel) next to the bundle.
+    // Added via nitro.hooks.hook() on purpose: a `nitro.hooks.compiled` config entry would replace the
+    // Vercel preset's own `compiled` hook, which writes .vercel/output/config.json.
+    'nitro:init'(nitro) {
+      nitro.hooks.hook('compiled', async () => {
+        const from = fileURLToPath(new URL('./node_modules/@img', import.meta.url))
+        const to = join(nitro.options.output.serverDir, 'node_modules/@img')
+        for (const pkg of await readdir(from)) {
+          if (pkg.startsWith('sharp-') && !pkg.includes('wasm')) {
+            await cp(join(from, pkg), join(to, pkg), { recursive: true, dereference: true })
+          }
+        }
+      })
     },
   },
   site: {
@@ -49,10 +67,11 @@ export default defineNuxtConfig({
     ]
   },
   runtimeConfig: {
-    // read by server/middleware/ipx-guard.ts
+    // read by server/ipx.ts
     imageProxy: {
       domain: IMAGE_DOMAIN,
       quality: IMAGE_QUALITY,
+      maxAge: 60 * 60 * 24 * 365, // seconds; resized photos never change
       widths: [...new Set(Object.entries(IMAGE_WIDTHS).flatMap(([slot, width]) =>
         slot === 'lightbox' ? [width] : [width, width * 2]))],
     },
