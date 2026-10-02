@@ -101,7 +101,7 @@ useSeoMeta({
       </div>
 
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        <Card v-for="mushroom in seasonalMushrooms" :key="mushroom.id" :shroom="mushroom" variant="large"/>
+        <Card v-for="(mushroom, index) in seasonalMushrooms" :key="mushroom.id" :shroom="mushroom" variant="large" :priority="index === 0"/>
       </div>
 
       <div v-if="!loading && seasonalMushrooms.length === 0"

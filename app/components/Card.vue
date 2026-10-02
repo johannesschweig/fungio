@@ -8,10 +8,13 @@ import { getMushroomIcon, getMushroomUrl, capitalizeFirstLetter, normalizeSearch
 const props = withDefaults(defineProps<{
   shroom: Shroom,
   highlight?: boolean,
-  variant?: 'list' | 'large'
+  variant?: 'list' | 'large',
+  // first card above the fold on the list pages: load its image right away instead of lazily
+  priority?: boolean
 }>(), {
   variant: 'list',
-  highlight: false
+  highlight: false,
+  priority: false
 })
 
 const store = useStore()
@@ -85,7 +88,8 @@ const seasonRange = computed(() => {
     <div class="relative h-48 w-full overflow-hidden">
       <img v-if="shroom.photos && shroom.photos.length && shroom.photos?.[0].url"
         :src="getInaturalistImageUrl(shroom.photos?.[0].url, 'medium')"
-        :alt="shroom.preferred_common_name || shroom.name" class="w-full h-full object-cover" loading="lazy" />
+        :alt="shroom.preferred_common_name || shroom.name" class="w-full h-full object-cover"
+        :loading="priority ? 'eager' : 'lazy'" :fetchpriority="priority ? 'high' : undefined" />
       <div v-else class="w-full h-full bg-stone-100 flex items-center justify-center">
         <MushroomIcon class="w-16 h-16 text-stone-300" />
       </div>

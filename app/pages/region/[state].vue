@@ -75,7 +75,7 @@ useSeoMeta({
             #{{ index + 1 }}
           </div>
 
-          <Card :key="mushroom.id" :shroom="mushroom" variant="large"/>
+          <Card :key="mushroom.id" :shroom="mushroom" variant="large" :priority="index === 0"/>
         </div>
       </main>
 

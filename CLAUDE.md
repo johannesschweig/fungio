@@ -12,6 +12,7 @@ Deutschsprachiger Pilzführer. Nuxt 4 / Vue 3 App, Supabase als Backend (Postgre
 - **State**: `app/stores/store.ts` (Pinia, u.a. globale Suche `store.search`, Filter).
 - **Seiten**: `app/pages/` — Pilzdetail (`mushroom/[id].vue`), Taxonomie (`taxa/`, basiert auf `ancestry`-Pfaden in der `fungi`-Tabelle), Übersichten nach Buchstabe/Saison/Region/Top-Speisepilze.
 - **Migrations**: `app/migrations/*.sql` sind lose SQL-Snippets (kein Migrationstool) — werden manuell im Supabase SQL-Editor ausgeführt. Neue Snippets dort ablegen, aber nicht automatisch ausführen (siehe unten).
+- **AUDIT.md** im Repo-Root: nummerierte Liste technischer Ineffizienzen (Caching, Datenzugriff, Bundle, Bilder) mit Messwerten und Fix-Vorschlag. Erledigte Punkte dort abhaken (`[x]` + Datum und Commit-Titel), Nummern nicht ändern. Bei „mach Punkt N“ ist diese Liste gemeint.
 - **TODO.md** im Repo-Root: laufende Aufgabenliste (`TODO` / `NOTES` / `DONE` / `DROPPED`). Bei erledigten Aufgaben den Punkt von `TODO` nach `DONE` verschieben (kurze Notiz ergänzen, was genau gemacht wurde), nicht einfach löschen.
 
 ## Wichtige Eigenheiten

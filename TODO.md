@@ -1,4 +1,5 @@
 # TODO
+- Audit-Punkte abarbeiten, siehe AUDIT.md (30 Punkte, 20 erledigt, nächster: 29 Search Console; Reihenfolge siehe Ende der Datei)
 
 # NOTES
 - connectToDevTools spam: see github issue https://github.com/nuxt-modules/apollo/issues/662

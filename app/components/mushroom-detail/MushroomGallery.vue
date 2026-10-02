@@ -43,6 +43,7 @@ function openLightbox(index: number) {
         <MushroomImage
           :shroom="{ photos: [photo] } as any"
           :index="0"
+          :priority="index === 0"
           class="w-full h-full object-cover rounded-xl shadow-sm border border-tan-100"
           @click="openLightbox(index)"
         />
@@ -54,6 +55,7 @@ function openLightbox(index: number) {
         <MushroomImage
           :shroom="{ photos: [props.photos[0]] } as any"
           :index="0"
+          priority
           class="w-full h-full object-cover rounded-2xl shadow-sm cursor-pointer hover:opacity-95 transition-opacity border border-tan-100"
           @click="openLightbox(0)"
         />

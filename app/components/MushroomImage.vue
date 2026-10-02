@@ -15,6 +15,11 @@ const props = defineProps({
   moreImages: {
     type: Number,
     default: 0
+  },
+  // first/largest image above the fold (usually the LCP element): load it right away instead of lazily
+  priority: {
+    type: Boolean,
+    default: false
   }
 })
 const showAttribution = ref(false)
@@ -28,7 +33,8 @@ const photo = props.shroom.photos ? props.shroom.photos[props.index] : { 'url': 
       :src="getInaturalistImageUrl(photo.url, 'medium')"
       :alt="shroom.preferred_common_name"
       class="w-full h-full object-cover"
-      loading="lazy"
+      :loading="priority ? 'eager' : 'lazy'"
+      :fetchpriority="priority ? 'high' : undefined"
     />
     <div v-if="moreImages > 0" class="absolute bottom-0 right-0 bg-stone-800 text-white p-2 rounded-br-lg rounded-tl-lg text-sm">
       +{{ moreImages }}
