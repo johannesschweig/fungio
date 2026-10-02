@@ -8,7 +8,8 @@ export default defineEventHandler((event) => {
 
   const { imageProxy } = useRuntimeConfig(event)
   const [modifiers = '', ...sourceParts] = path.slice('/_ipx/'.length).split('/')
-  const source = decodeURIComponent(sourceParts.join('/'))
+  // Vercel collapses the `//` in the embedded source URL (https://… arrives as https:/…)
+  const source = decodeURIComponent(sourceParts.join('/')).replace(/^(https?):\/+/, '$1://')
 
   const params = new Map(modifiers.split('&').map((m) => {
     const i = m.indexOf('_')
