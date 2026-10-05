@@ -2,7 +2,7 @@
 import Card from '@/components/Card.vue'
 import MushroomIcon from '@/assets/mushroom.svg'
 import type { TaxonChildEntry } from '@/composables/composables'
-import { getTaxonUrl, getMushroomUrl, capitalizeFirstLetter, getInaturalistImageUrl } from '@/utils/utils'
+import { getTaxonUrl, getMushroomUrl, capitalizeFirstLetter } from '@/utils/utils'
 
 const props = defineProps<{ entry: TaxonChildEntry }>()
 
@@ -19,7 +19,7 @@ const thumbnail = computed(() => props.entry.mushroom.photos?.[0]?.url ?? null)
        mushroom is a plain text link underneath (kept as a sibling link, not a nested <a>) -->
   <div v-else class="bg-white rounded-2xl border border-tan-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col h-full">
     <NuxtLink :to="getTaxonUrl(entry)" class="relative h-48 w-full overflow-hidden block">
-      <img v-if="thumbnail" :src="getInaturalistImageUrl(thumbnail, 'medium')"
+      <NuxtImg v-if="thumbnail" :src="proxyPhotoSource(thumbnail, 'large')" preset="photo" :width="IMAGE_WIDTHS.card" densities="x1 x2"
         :alt="entry.preferred_common_name || entry.name" class="w-full h-full object-cover" loading="lazy" />
       <div v-else class="w-full h-full bg-stone-100 flex items-center justify-center">
         <MushroomIcon class="w-16 h-16 text-stone-300" />

@@ -55,7 +55,7 @@ watch(filteredShrooms, (newVal: any) => {
           <NuxtLink :to="`/mushroom/${shroom.id}`"
             class="relative w-22 h-22 rounded-lg border-2 border-transparent hover:border-amber-600"
             v-for="shroom in mushroomsOfTheDay">
-            <img :src="getInaturalistImageUrl(shroom.photos?.[0].url ?? '', 'small')"
+            <NuxtImg :src="proxyPhotoSource(shroom.photos?.[0].url ?? '', 'medium')" preset="photo" :width="IMAGE_WIDTHS.thumb" densities="x1 x2"
               class="absolute inset-0 w-full h-full object-cover rounded-md" loading="lazy" />
           </NuxtLink>
         </div>

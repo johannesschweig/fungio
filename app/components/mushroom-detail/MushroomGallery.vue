@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue'
 import VueEasyLightbox from 'vue-easy-lightbox'
 import MushroomImage from '@/components/MushroomImage.vue'
-import { getInaturalistImageUrl } from '@/utils/utils' // Pfad ggf. anpassen
 import type Shroom from '@/types/Shroom'
 
 const props = defineProps<{
@@ -11,10 +10,11 @@ const props = defineProps<{
 
 const lightboxVisible = ref(false)
 const currentIndex = ref(0)
+const img = useImage()
 
 const images = computed(() =>
   props.photos.map(p => ({
-    src: getInaturalistImageUrl(p.url, "medium"),
+    src: img(proxyPhotoSource(p.url, 'large'), { width: IMAGE_WIDTHS.lightbox }, { preset: 'photo' }),
     title: p.attribution || ''
   }))
 )
@@ -52,10 +52,12 @@ function openLightbox(index: number) {
 
     <div class="hidden md:grid grid-cols-3 gap-4">
       <div class="col-span-2 h-full">
+        <!-- no `priority` here: this block is display:none on phones, and only lazy images are
+             skipped while hidden — an eager one would make every phone download it too -->
         <MushroomImage
           :shroom="{ photos: [props.photos[0]] } as any"
           :index="0"
-          priority
+          size="hero"
           class="w-full h-full object-cover rounded-2xl shadow-sm cursor-pointer hover:opacity-95 transition-opacity border border-tan-100"
           @click="openLightbox(0)"
         />
