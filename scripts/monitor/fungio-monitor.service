@@ -1,0 +1,12 @@
+# systemd user service for the Raspberry Pi — see scripts/monitor/README.md
+[Unit]
+Description=Collect fungio production logs from Vercel
+After=network-online.target
+
+[Service]
+ExecStart=%h/fungio-monitor/collect.sh
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=default.target
