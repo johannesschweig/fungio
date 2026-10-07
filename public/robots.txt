@@ -1,3 +1,24 @@
+# Every crawled page is rendered by a Vercel function and costs CPU time from the Hobby quota.
+# AI training crawlers and SEO-analysis crawlers brought no visitors but burned through it
+# (GPTBot alone: ~21k pages in 4 hours on 2026-10-07), so they're shut out. Search engines and
+# AI search/answer bots that send visitors to the site stay allowed.
+
+User-Agent: GPTBot
+User-Agent: CCBot
+User-Agent: ClaudeBot
+User-Agent: anthropic-ai
+User-Agent: Google-Extended
+User-Agent: Applebot-Extended
+User-Agent: Bytespider
+User-Agent: Amazonbot
+User-Agent: meta-externalagent
+User-Agent: SemrushBot
+User-Agent: AhrefsBot
+User-Agent: PetalBot
+User-Agent: MJ12bot
+User-Agent: DotBot
+Disallow: /
+
 User-Agent: *
 Disallow:
 
