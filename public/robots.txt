@@ -11,6 +11,7 @@ User-Agent: Google-Extended
 User-Agent: Applebot-Extended
 User-Agent: Bytespider
 User-Agent: Amazonbot
+User-Agent: Amzn-SearchBot
 User-Agent: meta-externalagent
 User-Agent: SemrushBot
 User-Agent: AhrefsBot
