@@ -15,6 +15,14 @@ Deutschsprachiger Pilzführer. Nuxt 4 / Vue 3 App, Supabase als Backend (Postgre
 - **AUDIT.md** im Repo-Root: nummerierte Liste technischer Ineffizienzen (Caching, Datenzugriff, Bundle, Bilder) mit Messwerten und Fix-Vorschlag. Erledigte Punkte dort abhaken (`[x]` + Datum und Commit-Titel), Nummern nicht ändern. Bei „mach Punkt N“ ist diese Liste gemeint.
 - **TODO.md** im Repo-Root: laufende Aufgabenliste (`TODO` / `NOTES` / `DONE` / `DROPPED`). Bei erledigten Aufgaben den Punkt von `TODO` nach `DONE` verschieben (kurze Notiz ergänzen, was genau gemacht wurde), nicht einfach löschen.
 
+## Tests
+
+Vitest + `@nuxt/test-utils`, drei Ebenen (Details und Fallstricke in `test/README.md`):
+
+- `npm test` — Unit- + Nuxt-Tests (Composables/Komponenten mit gefaktem Supabase/Apollo), ~2 s, braucht nichts. **Vor jedem Commit laufen lassen**; bei Änderungen an Logik/Composables/Komponenten passende Tests ergänzen.
+- `npm run test:e2e` — Smoke-Tests gegen echte Seiten + echte DB (nur lesend). Startet einen eigenen `nuxt dev`, oder gegen laufenden Server: `E2E_BASE_URL=http://localhost:3000 npm run test:e2e`. Nach Änderungen an Seiten, Routen, Sitemap, robots.txt oder Bild-Proxy laufen lassen.
+- E2E-Requests senden bewusst einen Bot-User-Agent, damit sie nicht `needs_photo_review` in der echten DB setzen.
+
 ## Wichtige Eigenheiten
 
 - **`VITE_SUPABASE_SERVICE_ROLE_KEY`** in `.env` ist trotz des Namens **kein echter Service-Role-Key**, sondern ein `sb_publishable_...`-Key (Supabase's neues Key-System, Nachfolger des alten `anon`-Keys). Er unterliegt RLS und darf im Client-Bundle landen — ist aber nicht "God Mode". Schreibzugriffe, die dieser Key ausführen soll, brauchen eine explizite RLS-Policy (+ ggf. Column-Grant), siehe `app/migrations/fungi_needs_photo_review.sql` als Beispiel-Pattern (Policy erlaubt nur `false → true` auf einer einzelnen Spalte, kein Zurücksetzen, kein Zugriff auf andere Spalten).

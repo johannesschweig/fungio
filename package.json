@@ -7,7 +7,12 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test": "vitest run --project unit --project nuxt",
+    "test:unit": "vitest run --project unit",
+    "test:nuxt": "vitest run --project nuxt",
+    "test:e2e": "vitest run --project e2e",
+    "test:watch": "vitest --project unit --project nuxt"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
@@ -32,6 +37,10 @@
     "vue-easy-lightbox": "^1.19.0"
   },
   "devDependencies": {
-    "@nuxtjs/apollo": "^5.0.0-alpha.15"
+    "@nuxt/test-utils": "^4.3.3",
+    "@nuxtjs/apollo": "^5.0.0-alpha.15",
+    "@vue/test-utils": "^2.5.1",
+    "happy-dom": "^21.0.1",
+    "vitest": "^5.0.4"
   }
 }
