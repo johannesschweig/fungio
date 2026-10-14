@@ -181,7 +181,11 @@ export function useMushroomLookAlikes(lookAlikeIds: Ref<string[]>) {
     if (!lookAlikeIds.value.length || !data.value?.attributesCollection?.edges) return []
 
     return data.value.attributesCollection.edges
-      .map((e: any) => flattenFungi(e.node?.fungi))
+      .map((e: any) => {
+        const shroom = flattenFungi(e.node?.fungi)
+        // flattenFungi only maps the nested `attributes`; here edibility/toxicity sit on the node itself
+        return shroom && { ...shroom, edibility: e.node.edibility ?? undefined, toxicity: e.node.toxicity ?? undefined }
+      })
       .filter(Boolean)
   })
 

@@ -137,6 +137,8 @@ export const GET_LOOK_ALIKE_FUNGI = gql`
               }
             }
           }
+          edibility
+          toxicity
         }
       }
     }

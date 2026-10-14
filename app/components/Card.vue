@@ -10,11 +10,14 @@ const props = withDefaults(defineProps<{
   highlight?: boolean,
   variant?: 'list' | 'large',
   // first card above the fold on the list pages: load its image right away instead of lazily
-  priority?: boolean
+  priority?: boolean,
+  // list variant: show the edibility/toxicity icon on mobile too (it's hidden there by default)
+  alwaysShowStatus?: boolean
 }>(), {
   variant: 'list',
   highlight: false,
-  priority: false
+  priority: false,
+  alwaysShowStatus: false
 })
 
 const store = useStore()
@@ -70,7 +73,7 @@ const seasonRange = computed(() => {
       <MushroomIcon class="w-12 h-12 text-stone-400" />
     </div>
 
-    <div>
+    <div class="min-w-0">
       <div v-if="shroom.preferred_common_name" class="text-lg text-stone-900 font-semibold"
         v-html="highlightMatch(shroom.preferred_common_name)"></div>
       <div class="text-sm md:text-base italic text-stone-500 max-w-[25ch] truncate"
@@ -78,7 +81,8 @@ const seasonRange = computed(() => {
     </div>
 
     <!-- Edibility & Toxicity icons -->
-    <div class="hidden md:block mx-2 p-1 w-8 h-8 rounded-lg" :class="iconData.class">
+    <div class="mx-2 p-1 w-8 h-8 rounded-lg" :class="[iconData.class, alwaysShowStatus ? '' : 'hidden md:block']"
+      :title="iconData.text || undefined">
       <component v-if="iconData.icon" :is="iconData.icon"  />
     </div>
   </NuxtLink>

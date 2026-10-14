@@ -29,3 +29,4 @@ Deutschsprachiger Pilzführer. Nuxt 4 / Vue 3 App, Supabase als Backend (Postgre
 - **Git**: Änderungen committen, aber **nicht automatisch pushen** — der User gibt Push explizit frei. Amend ist ok, wenn der User kleine Folgeänderungen nachreicht, bevor gepusht wurde.
 - **Dev-Server**: läuft oft schon extern (User-Terminal) auf Port 3000. Vor `preview_start` prüfen bzw. bei "Port already in use" einfach direkt gegen `localhost:3000` navigieren statt einen zweiten Server zu starten.
 - Bei Datenbank-Fragen/Auswertungen: direkte REST-Calls gegen Supabase (`curl` mit den Keys aus `.env`) sind der schnellste Weg, keine extra Scripts nötig.
+- **Mobile-Check**: UI-Änderungen immer auch im mobilen Viewport prüfen (`resize_window` mit Preset `mobile`), nicht nur Desktop — danach wieder auf `desktop` zurücksetzen.

@@ -1,5 +1,9 @@
 # TODO
 - Audit-Punkte abarbeiten, siehe AUDIT.md (30 Punkte, 20 + 21 erledigt, nächster: 29 Search Console; Reihenfolge siehe Ende der Datei)
+- vorschau der pilze auf der landing page (durchblättern)
+- faq
+- 8k fungi dont have a german nanme
+- veraltete lateinische alternativnamen
 
 # NOTES
 - connectToDevTools spam: see github issue https://github.com/nuxt-modules/apollo/issues/662
