@@ -7,6 +7,7 @@ import SearchBar from '@/components/SearchBar.vue'
 import SeasonFilter from '@/components/SeasonFilter.vue'
 import RegionFilter from '@/components/RegionFilter.vue'
 import MushroomLookAlikes from '@/components/mushroom-detail/MushroomLookAlikes.vue'
+import MushroomIntro from '@/components/mushroom-detail/MushroomIntro.vue'
 import { useStore } from '@/stores/store'
 import { stateNames } from '@/utils/utils'
 import type Shroom from '@/types/Shroom'
@@ -135,6 +136,21 @@ describe('<Card>', () => {
       expect((await large({ photos: [photo] }, { priority: true })).find('img').attributes('loading')).toBe('eager')
       expect((await large({ photos: [photo] })).find('img').attributes('loading')).toBe('lazy')
     })
+  })
+})
+
+describe('<MushroomIntro>', () => {
+  const mount = (overrides: Partial<Shroom>) => mountSuspended(MushroomIntro, { props: { shroom: shroom(overrides) } })
+
+  it('calls an edible mushroom a Speisepilz with its Speisewert', async () => {
+    const text = (await mount({ edibility: 'good' })).text()
+    expect(text).toContain('ein Speisepilz mit dem Speisewert')
+  })
+
+  it('does not call an inedible mushroom a Speisepilz', async () => {
+    const text = (await mount({ edibility: 'inedible' })).text()
+    expect(text).toContain('ein ungenießbarer Pilz')
+    expect(text).not.toContain('Speisepilz')
   })
 })
 
