@@ -6,7 +6,7 @@ import { IMAGE_WIDTHS, PHOTO_ORIGIN } from './shared/utils/image'
 
 // iNaturalist photos are resized + converted to WebP by our own image proxy (server/ipx.ts at /_ipx,
 // runs in the Vercel function) and then cached by Vercel's CDN. Only the sizes from IMAGE_WIDTHS
-// (1x + 2x) are allowed — otherwise anyone could burn the Vercel Hobby CPU quota by requesting
+// (1x only, no retina variants: that halves the number of resize runs; every <NuxtImg> sets densities="x1" explicitly, the module would otherwise add a 2x srcset) are allowed — otherwise anyone could burn the Vercel Hobby CPU quota by requesting
 // arbitrary widths.
 const IMAGE_QUALITY = 75
 
@@ -29,7 +29,6 @@ export default defineNuxtConfig({
     // optimization, whose Hobby quota (5k/month) fails images with 402 once exceeded
     provider: 'ipx',
     domains: [new URL(PHOTO_ORIGIN).host],
-    densities: [1, 2],
     presets: {
       photo: { modifiers: { format: 'webp', quality: IMAGE_QUALITY } },
     },
@@ -70,8 +69,7 @@ export default defineNuxtConfig({
     imageProxy: {
       quality: IMAGE_QUALITY,
       maxAge: 60 * 60 * 24 * 365, // seconds; resized photos never change
-      widths: [...new Set(Object.entries(IMAGE_WIDTHS).flatMap(([slot, width]) =>
-        slot === 'lightbox' ? [width] : [width, width * 2]))],
+      widths: [...new Set(Object.values(IMAGE_WIDTHS))],
     },
     public: {
       supabaseUrl: process.env.VITE_SUPABASE_URL,

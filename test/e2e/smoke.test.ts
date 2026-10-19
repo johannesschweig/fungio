@@ -48,6 +48,7 @@ describe('home page', () => {
     expect(page.html).toContain('Pilze des Tages')
     expect(mushroomLinks(page.html).length).toBeGreaterThanOrEqual(6)
     expect(page.html).toMatch(/src="\/_ipx\/f_webp&amp;q_75&amp;w_80\/inat\/photos\//)
+    expect(page.html).not.toMatch(/srcset="[^"]*_ipx[^"]* 2x"/) // one size per photo, no retina (2x) variant
   })
 
   it('daily-mushroom links (no slug) redirect permanently to the canonical URL, which renders', async () => {
@@ -247,6 +248,7 @@ describe('image proxy (/_ipx)', () => {
 
   it.each([
     ['an arbitrary width', (p: string) => p.replace('w_80', 'w_81')],
+    ['a retina (2x) width, which the site no longer uses', (p: string) => p.replace('w_80', 'w_160')],
     ['a query string', (p: string) => `${p}?x=1`],
     ['another format', (p: string) => p.replace('f_webp', 'f_png')],
     ['an extra modifier', (p: string) => p.replace('w_80', 'w_80&blur_5')],
