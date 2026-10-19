@@ -223,6 +223,7 @@ describe('sitemap + robots.txt', () => {
     // the block of "User-Agent:" lines that ends in `Disallow: /` (the file starts with a comment that also mentions GPTBot)
     const blocked = robots.split(/\n\s*\n/).find(block => block.startsWith('User-Agent: GPTBot'))!
     expect(blocked).toContain('User-Agent: ClaudeBot')
+    expect(blocked).toContain('User-Agent: QlyzeBot')
     expect(blocked).toContain('Disallow: /')
     expect(robots).toMatch(/User-Agent: \*\s+Disallow:\s*\n/)
     expect(robots).toContain('Sitemap: https://fungio.de/sitemap_index.xml')
