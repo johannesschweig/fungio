@@ -19,6 +19,7 @@ User-Agent: PetalBot
 User-Agent: MJ12bot
 User-Agent: DotBot
 User-Agent: QlyzeBot
+User-Agent: Reflectionbot
 Disallow: /
 
 User-Agent: *

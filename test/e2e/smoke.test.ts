@@ -225,6 +225,7 @@ describe('sitemap + robots.txt', () => {
     const blocked = robots.split(/\n\s*\n/).find(block => block.startsWith('User-Agent: GPTBot'))!
     expect(blocked).toContain('User-Agent: ClaudeBot')
     expect(blocked).toContain('User-Agent: QlyzeBot')
+    expect(blocked).toContain('User-Agent: Reflectionbot')
     expect(blocked).toContain('Disallow: /')
     expect(robots).toMatch(/User-Agent: \*\s+Disallow:\s*\n/)
     expect(robots).toContain('Sitemap: https://fungio.de/sitemap_index.xml')
