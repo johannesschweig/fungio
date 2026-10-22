@@ -1,40 +1,41 @@
 # Fungio
 
-Deutschsprachiger Pilzführer. Nuxt 4 / Vue 3 App, Supabase als Backend (Postgres + PostgREST + pg_graphql), Pinia für globalen State, Tailwind fürs Styling.
+German-language mushroom guide at fungio.de. Nuxt 4 / Vue 3 app, Supabase backend (Postgres + PostgREST + pg_graphql), Pinia for global state, Tailwind for styling.
 
-## Stack & Struktur
+This repo is public. The data pipeline lives in a separate private repo (`../fungio-data`); cross-repo context is in the parent folder's `CLAUDE.md`. Write all code, comments, docs and commit messages in English; only user-facing site content is German.
 
-- **Nuxt 4** (`app/` als Source-Verzeichnis), Vue 3 `<script setup>`.
-- **Supabase**: zwei Zugriffswege parallel im Einsatz.
-  - GraphQL (`@nuxtjs/apollo`, `useAsyncQuery`/`useLazyQuery`) für die meisten Reads — Queries liegen in `app/composables/queries.ts`.
-  - REST via `@supabase/supabase-js` (Client in `app/supabase.ts`) für Dinge, die pg_graphql nicht abbildet, z.B. Taxonomie-Auflösung über `ancestry`-Strings in `app/composables/composables.ts`.
-- **Zentrale Composables**: `app/composables/composables.ts` (Datenzugriff/Business-Logik), `app/composables/queries.ts` (GraphQL-Queries), `app/composables/utils.ts` (`flattenFungi` etc. zum Umformen der GraphQL-Response in den `Shroom`-Typ).
-- **State**: `app/stores/store.ts` (Pinia, u.a. globale Suche `store.search`, Filter).
-- **Seiten**: `app/pages/` — Pilzdetail (`mushroom/[id].vue`), Taxonomie (`taxa/`, basiert auf `ancestry`-Pfaden in der `fungi`-Tabelle), Übersichten nach Buchstabe/Saison/Region/Top-Speisepilze.
-- **Migrations**: `app/migrations/*.sql` sind lose SQL-Snippets (kein Migrationstool) — werden manuell im Supabase SQL-Editor ausgeführt. Neue Snippets dort ablegen, aber nicht automatisch ausführen (siehe unten).
-- **AUDIT.md** im Repo-Root: nummerierte Liste technischer Ineffizienzen (Caching, Datenzugriff, Bundle, Bilder) mit Messwerten und Fix-Vorschlag. Erledigte Punkte dort abhaken (`[x]` + Datum und Commit-Titel), Nummern nicht ändern. Bei „mach Punkt N“ ist diese Liste gemeint.
-- **TODO.md** im Repo-Root: laufende Aufgabenliste (`TODO` / `NOTES` / `DONE` / `DROPPED`). Bei erledigten Aufgaben den Punkt von `TODO` nach `DONE` verschieben (kurze Notiz ergänzen, was genau gemacht wurde), nicht einfach löschen.
+## Stack & structure
+
+- **Nuxt 4** (`app/` as source directory), Vue 3 `<script setup>`.
+- **Supabase**: two access paths in parallel.
+  - GraphQL (`@nuxtjs/apollo`, `useAsyncQuery`/`useLazyQuery`) for most reads. Queries live in `app/composables/queries.ts`.
+  - REST via `@supabase/supabase-js` (client in `app/supabase.ts`) for what pg_graphql can't express, e.g. resolving taxonomy from `ancestry` strings in `app/composables/composables.ts`.
+- **Core composables**: `app/composables/composables.ts` (data access / business logic), `app/composables/queries.ts` (GraphQL queries), `app/composables/utils.ts` (`flattenFungi` etc., which reshape the GraphQL response into the `Shroom` type).
+- **State**: `app/stores/store.ts` (Pinia: global search `store.search`, filters).
+- **Pages**: `app/pages/`: mushroom detail (`mushroom/[id].vue`), taxonomy (`taxa/`, based on `ancestry` paths in the `fungi` table), overviews by letter / season / region / top edible mushrooms.
+- **Migrations**: `app/migrations/*.sql` are loose SQL snippets (no migration tool), run manually in the Supabase SQL editor. Add new snippets there but never execute them automatically (see below).
+- **AUDIT.md** (repo root): numbered list of technical inefficiencies (caching, data access, bundle, images) with measurements and a suggested fix. Tick off finished items (`[x]` + date and commit title), never renumber. "Do item N" refers to this list.
+- **TODO.md** (repo root): running task list (`TODO` / `NOTES` / `DONE` / `DROPPED`). When a task is finished, move it from `TODO` to `DONE` with a short note on what was done; don't just delete it.
 
 ## Tests
 
-Vitest + `@nuxt/test-utils`, drei Ebenen (Details und Fallstricke in `test/README.md`):
+Vitest + `@nuxt/test-utils`, three levels (details and pitfalls in `test/README.md`):
 
-- `npm test` — Unit- + Nuxt-Tests (Composables/Komponenten mit gefaktem Supabase/Apollo), ~2 s, braucht nichts. **Vor jedem Commit laufen lassen**; bei Änderungen an Logik/Composables/Komponenten passende Tests ergänzen.
-- `npm run test:e2e` — Smoke-Tests gegen echte Seiten + echte DB (nur lesend). Startet einen eigenen `nuxt dev`, oder gegen laufenden Server: `E2E_BASE_URL=http://localhost:3000 npm run test:e2e`. Nach Änderungen an Seiten, Routen, Sitemap, robots.txt oder Bild-Proxy laufen lassen.
-- E2E-Requests senden bewusst einen Bot-User-Agent, damit sie nicht `needs_photo_review` in der echten DB setzen.
+- `npm test`: unit + Nuxt tests (composables/components with faked Supabase/Apollo), ~2 s, needs nothing. **Run before every commit**; add matching tests when changing logic, composables or components.
+- `npm run test:e2e`: smoke tests against real pages and the real DB (read-only). Starts its own `nuxt dev`, or runs against a running server: `E2E_BASE_URL=http://localhost:3000 npm run test:e2e`. Run after changes to pages, routes, sitemap, robots.txt or the image proxy.
+- E2E requests deliberately send a bot user agent so they don't set `needs_photo_review` in the real DB.
 
-## Wichtige Eigenheiten
+## Gotchas
 
-- **`VITE_SUPABASE_SERVICE_ROLE_KEY`** in `.env` ist trotz des Namens **kein echter Service-Role-Key**, sondern ein `sb_publishable_...`-Key (Supabase's neues Key-System, Nachfolger des alten `anon`-Keys). Er unterliegt RLS und darf im Client-Bundle landen — ist aber nicht "God Mode". Schreibzugriffe, die dieser Key ausführen soll, brauchen eine explizite RLS-Policy (+ ggf. Column-Grant), siehe `app/migrations/fungi_needs_photo_review.sql` als Beispiel-Pattern (Policy erlaubt nur `false → true` auf einer einzelnen Spalte, kein Zurücksetzen, kein Zugriff auf andere Spalten).
-- Ich kann kein DDL (ALTER TABLE, CREATE POLICY, …) selbst ausführen — nur `SELECT`/`PATCH` über die REST-API testen. SQL-Änderungen an der DB müssen vom User im Supabase SQL-Editor laufen gelassen werden.
-- **Bot-Traffic**: SSR-Requests laufen für Crawler genauso wie für echte Nutzer durch — wo das relevant ist (z.B. Tracking/Flags, die nur bei echten Besuchen gesetzt werden sollen), serverseitig mit `isbot` (`app/composables/composables.ts`, `isBotRequest()`) filtern.
-- **Taxonomie**: `taxa`-Tabelle hat keine Parent/Child-Spalte — Abstammung wird aus dem `ancestry`-String (`/`-getrennte ID-Kette) der `fungi`-Tabelle abgeleitet (iNaturalist-Konvention). Rank-Level-Konstanten: 10 = Art, 20 = Gattung, 30 = Familie, 40 = Ordnung (siehe `useTaxonPage`/`useAllOrders`).
-- **Fotos**: `photos`-Tabelle hat `fungi_id`, `url`, `quality_score` (aktuell im Aufbau — Foto-Pipeline scort Bilder extern). `needs_photo_review` (bool, `fungi`-Tabelle) markiert Pilze ohne gescorte Fotos für die Pipeline.
-- Bilder-URLs: `getInaturalistImageUrl()` in `app/utils/utils.ts` ersetzt `square` im Pfad durch die gewünschte Größe (`small`/`medium`/`large`) — Reihenfolge der `photos`-Query IMMER explizit mit `.order('id')` angeben, sonst kann PostgREST eine andere Reihenfolge liefern als die GraphQL-Queries (die implizit nach `id` sortieren).
+- **`VITE_SUPABASE_SERVICE_ROLE_KEY`** in `.env` is, despite its name, **not a real service-role key** but an `sb_publishable_...` key (Supabase's new key system, successor to the old `anon` key). It is subject to RLS and may end up in the client bundle; it is not "god mode". Writes this key should be able to do need an explicit RLS policy (+ column grant if needed). See `app/migrations/fungi_needs_photo_review.sql` as the pattern: the policy allows only `false → true` on a single column, no reset, no access to other columns.
+- Claude cannot run DDL (`ALTER TABLE`, `CREATE POLICY`, ...), only test `SELECT`/`PATCH` over the REST API. Database changes must be run by the user in the Supabase SQL editor.
+- **Bot traffic**: SSR requests run the same for crawlers as for real users. Where it matters (e.g. tracking or flags that should only be set on real visits), filter server-side with `isbot` (`app/composables/composables.ts`, `isBotRequest()`).
+- **Taxonomy**: the `taxa` table has no parent/child column. Ancestry is derived from the `ancestry` string (`/`-separated ID chain) on the `fungi` table (iNaturalist convention). Rank level constants: 10 = species, 20 = genus, 30 = family, 40 = order (see `useTaxonPage`/`useAllOrders`).
+- **Photos**: the `photos` table has `fungi_id`, `url`, `quality_score` (the photo pipeline scores images externally). `needs_photo_review` (bool, `fungi` table) flags mushrooms without scored photos for that pipeline.
+- **Image URLs**: `getInaturalistImageUrl()` in `app/utils/utils.ts` replaces `square` in the path with the requested size (`small`/`medium`/`large`). ALWAYS give the `photos` query an explicit `.order('id')`, otherwise PostgREST may return a different order than the GraphQL queries (which sort by `id` implicitly).
 
-## Workflow-Vorgaben
+## Workflow
 
-- **Git**: Änderungen committen, aber **nicht automatisch pushen** — der User gibt Push explizit frei. Amend ist ok, wenn der User kleine Folgeänderungen nachreicht, bevor gepusht wurde.
-- **Dev-Server**: läuft oft schon extern (User-Terminal) auf Port 3000. Vor `preview_start` prüfen bzw. bei "Port already in use" einfach direkt gegen `localhost:3000` navigieren statt einen zweiten Server zu starten.
-- Bei Datenbank-Fragen/Auswertungen: direkte REST-Calls gegen Supabase (`curl` mit den Keys aus `.env`) sind der schnellste Weg, keine extra Scripts nötig.
-- **Mobile-Check**: UI-Änderungen immer auch im mobilen Viewport prüfen (`resize_window` mit Preset `mobile`), nicht nur Desktop — danach wieder auf `desktop` zurücksetzen.
+- **Dev server**: often already running externally (user's terminal) on port 3000. Check before `preview_start`; on "Port already in use" just navigate to `localhost:3000` instead of starting a second server.
+- For database questions or analyses, direct REST calls against Supabase (`curl` with the keys from `.env`) are the quickest route; no extra scripts needed.
+- **Mobile check**: always check UI changes in a mobile viewport too (`resize_window` with preset `mobile`), not only desktop, then reset to `desktop`.
