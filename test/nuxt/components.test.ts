@@ -298,10 +298,10 @@ describe('<SearchBar>', () => {
     const wrapper = await mountSuspended(SearchBar, { route: '/' })
     await type(wrapper, 'Steinpilz')
 
-    await wrapper.find('button[aria-label="Clear search"]').trigger('click')
+    await wrapper.find('button[aria-label="Suche löschen"]').trigger('click')
     expect((wrapper.find('input').element as HTMLInputElement).value).toBe('')
     expect(useStore().search).toBe('')
-    expect(wrapper.find('button[aria-label="Clear search"]').exists()).toBe(false)
+    expect(wrapper.find('button[aria-label="Suche löschen"]').exists()).toBe(false)
   })
 
   it('follows search changes made elsewhere (e.g. clicking a genus on the detail page)', async () => {

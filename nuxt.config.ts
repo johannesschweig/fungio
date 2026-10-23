@@ -13,6 +13,12 @@ const IMAGE_QUALITY = 75
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  // Claude Code worktrees live in .claude/ and can hold a full node_modules copy (~19k files).
+  // Without this, the dev watchers open them all and spawning esbuild fails with EBADF.
+  ignore: ['**/.claude/**'],
+  vite: {
+    server: { watch: { ignored: ['**/.claude/**'] } },
+  },
   modules: [
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',

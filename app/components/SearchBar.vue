@@ -4,7 +4,7 @@ import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headl
 import SearchIcon from '@/assets/search.svg'
 import { useStore } from '@/stores/store'
 
-const props = withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
+const props = withDefaults(defineProps<{ compact?: boolean, inputId?: string }>(), { compact: false })
 
 const store = useStore()
 const route = useRoute()
@@ -17,7 +17,7 @@ const { suggestions } = useSearchMushroomNames(query)
 
 // When selected suggestion changes, update search
 watch(selected, (val) => {
-  if (val) {
+  if (val && val !== store.search) {
     applySearch(val)
   }
 })
@@ -39,26 +39,25 @@ function clearSearch() {
   store.setSearch('')
 }
 
-// Change search if genus search from detail page
+// Keep both input text and the combobox selection in sync with external searches/resets.
 watch(() => store.search, (newSearch) => {
-  if (newSearch !== query.value) {
-    query.value = newSearch
-  }
+  query.value = newSearch
+  selected.value = newSearch
 })
 </script>
 
 <template>
   <!-- Search Bar -->
   <div class="flex items-center gap-2 relative" :class="compact ? '' : 'mb-2'">
-    <div class="w-full relative">
+    <div class="w-full min-w-0 relative">
       <Combobox v-model="selected" nullable>
-        <ComboboxInput :displayValue="(val) => typeof val === 'string' ? val : ''" :value="query"
-          @input="query = $event.target.value" :placeholder="compact ? 'Suche...' : 'Suche nach Namen (de, lat.)'"
+        <ComboboxInput enterkeyhint="search" autocapitalize="none" :id="inputId" :aria-label="inputId ? undefined : 'Pilzname'" :displayValue="(val) => typeof val === 'string' ? val : ''" :value="query"
+          @input="query = $event.target.value" :placeholder="compact ? 'Suche...' : inputId ? 'Pilzname eingeben' : 'Suche nach Namen (de, lat.)'"
           class="w-full px-4 py-2 border border-stone-300 rounded-lg bg-stone-50 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring focus:ring-amber-400"
           @blur.capture.stop @keyup.enter="applySearch()" />
         <button v-if="query" @click="clearSearch"
-          class="cursor-pointer absolute right-2 top-1/2 transform -translate-y-1/2 text-stone-400 hover:text-stone-600"
-          aria-label="Clear search" type="button">
+          class="cursor-pointer absolute right-0 top-1/2 transform -translate-y-1/2 text-stone-400 hover:text-stone-600 w-11 h-11 flex items-center justify-center"
+          aria-label="Suche löschen" type="button">
           ✕
         </button>
         <ComboboxOptions

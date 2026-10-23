@@ -41,18 +41,25 @@ const getSitemap = once(async () =>
   (JSON.parse((await get('/api/__sitemap__/urls')).html) as { loc: string }[]).map(u => u.loc))
 
 describe('home page', () => {
-  it('renders the search page with "Pilze des Tages" and proxied thumbnails', async () => {
+  it('introduces the mushroom guide with search, exploration links and an attributed portrait', async () => {
     const page = await get('/')
     expect(page.status).toBe(200)
     expect(title(page.html)).toBe('Fungio - Schnelle und einfache Pilzsuche')
-    expect(page.html).toContain('Pilze des Tages')
-    expect(mushroomLinks(page.html).length).toBeGreaterThanOrEqual(6)
-    expect(page.html).toMatch(/src="\/_ipx\/f_webp&amp;q_75&amp;w_80\/inat\/photos\//)
+    expect(page.html).toContain('Pilze entdecken.')
+    expect(page.html).toContain('Arten verstehen.')
+    expect(page.html).not.toContain('Pilze des Tages')
+    expect(page.html).toContain('https://www.inaturalist.org/photos/733681634')
+    expect(page.html).toContain('https://creativecommons.org/publicdomain/zero/1.0/')
+    expect(page.html).toContain('href="/all"')
+    expect(page.html).toContain('href="/season"')
+    expect(mushroomLinks(page.html).length).toBeGreaterThanOrEqual(1)
+    expect(page.html).toMatch(/src="\/_ipx\/f_webp&amp;q_75&amp;w_640\/inat\/photos\//)
     expect(page.html).not.toMatch(/srcset="[^"]*_ipx[^"]* 2x"/) // one size per photo, no retina (2x) variant
   })
 
-  it('daily-mushroom links (no slug) redirect permanently to the canonical URL, which renders', async () => {
-    const [firstLink] = mushroomLinks((await get('/')).html)
+  it('bare species ids redirect permanently to the canonical URL, which renders', async () => {
+    const canonical = mushroomLinks((await get('/')).html)[0]
+    const firstLink = canonical.replace(/(\/mushroom\/\d+).*/, '$1')
     const redirect = await get(firstLink)
     expect(redirect.status).toBe(301)
     expect(path(redirect.location)).toMatch(/^\/mushroom\/\d+-[a-z0-9-]+$/)
@@ -235,9 +242,9 @@ describe('sitemap + robots.txt', () => {
 // The image proxy runs sharp inside the (quota-limited) serverless function: only the exact sizes the
 // site itself uses may get through, otherwise anyone could burn the CPU quota with ?w=1..5000.
 describe('image proxy (/_ipx)', () => {
-  // a thumbnail URL exactly as the home page renders it
+  // Derive an allowed thumbnail size from the landing portrait for the proxy contract checks.
   const getThumb = once(async () =>
-    (await get('/')).html.match(/src="(\/_ipx\/[^"]+)"/)![1].replaceAll('&amp;', '&'))
+    (await get('/')).html.match(/src="(\/_ipx\/[^"]+)"/)![1].replaceAll('&amp;', '&').replace('w_640', 'w_80'))
 
   it('serves an allowed size as WebP', async () => {
     const thumb = await getThumb()

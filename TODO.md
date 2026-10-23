@@ -9,6 +9,7 @@
 - connectToDevTools spam: see github issue https://github.com/nuxt-modules/apollo/issues/662
 
 # DONE
+- Introduce Fungio on the landing page with working search, an attributed species portrait, and discovery links in the existing visual style.
 - bindestriche nerven in der suche. wiesenchampignon findet nicht wiesen-champignon (search_name-Spalte, ignoriert Bindestriche/Leerzeichen/Umlaute, inkl. Alternativnamen)
 - Verwechslungspartner rand nach essbarkeit
     - Warum laden die nicht/bessere Performance

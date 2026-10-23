@@ -29,3 +29,7 @@ old/
 # editor swap files
 *.swp
 *.swo
+# Local design explorations and review evidence
+.impeccable
+DESIGN.md
+PRODUCT.md

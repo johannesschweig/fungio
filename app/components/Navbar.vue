@@ -4,7 +4,8 @@ import SearchBar from '@/components/SearchBar.vue'
 const route = useRoute()
 const router = useRouter()
 
-const isHome = computed(() => route.path === '/')
+const routeBaseName = useRouteBaseName()
+const isHome = computed(() => routeBaseName(route) === 'index')
 
 function goBack() {
   if (window.history.state.back) {
@@ -22,7 +23,7 @@ function goBack() {
         <Arrow class="w-4 h-4" />
       </button>
       <div v-if="!isHome" class="h-6 w-px bg-tan-300 shrink-0"></div>
-      <NuxtLink to="/" class="flex gap-2 items-center shrink-0">
+      <NuxtLink to="/" class="flex gap-2 items-center shrink-0 min-h-11">
         <img src="/mushroom.png" alt="Fungio Logo" class="w-8 h-8 inline-block text-tan-100" />
         <div class="text-lg font-bold font-serif text-tan-900" :class="{ 'hidden sm:block': !isHome }">Fungio</div>
       </NuxtLink>
