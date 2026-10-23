@@ -52,6 +52,7 @@ describe('flattenFungi', () => {
     const shroom = flattenFungi({ id: 1, name: 'Boletus edulis' })!
     expect(shroom).toMatchObject({
       preferred_common_name: '',
+      german_name_dgfm: '',
       english_common_name: '',
       ancestry: '',
       obs_count_ger: 0,

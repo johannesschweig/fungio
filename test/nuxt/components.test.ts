@@ -43,6 +43,16 @@ describe('<Card>', () => {
       expect(wrapper.text()).toBe('Amanita muscaria')
     })
 
+    it('falls back to the DGfM name for title, link and alt text', async () => {
+      const wrapper = await mount({
+        shroom: shroom({ name: 'russula sanguinaria', preferred_common_name: undefined, german_name_dgfm: 'Bluttäubling', photos: [photo] }),
+      })
+      expect(wrapper.find('a').attributes('href')).toBe('/mushroom/7-bluttaeubling')
+      expect(wrapper.text()).toContain('Bluttäubling')
+      expect(wrapper.text()).toContain('Russula sanguinaria')
+      expect(wrapper.find('img').attributes('alt')).toBe('Bluttäubling')
+    })
+
     it('renders the photo with alt text, or a placeholder when there is none', async () => {
       const withPhoto = await mount({ shroom: shroom({ photos: [photo] }) })
       expect(withPhoto.find('img').attributes('alt')).toBe('Fliegenpilz')

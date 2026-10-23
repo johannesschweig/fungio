@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type Shroom from '@/types/Shroom'
-import { capitalizeFirstLetter } from '@/utils/utils';
+import { capitalizeFirstLetter, getDisplayName } from '@/utils/utils';
 import MushroomBreadcrumb from '~/components/mushroom-detail/MushroomBreadcrumb.vue'
 
 defineProps<{ shroom: Shroom }>()
@@ -11,7 +11,7 @@ defineProps<{ shroom: Shroom }>()
     <div class="flex flex-col gap-4">
       <MushroomBreadcrumb :ancestry="shroom.ancestry" />
       <h1 class="text-4xl md:text-5xl font-serif font-bold text-tan-900">
-        {{ shroom.preferred_common_name || shroom.name }}
+        {{ getDisplayName(shroom) }}
       </h1>
 
       <div class="flex gap-3 items-center">

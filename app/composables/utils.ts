@@ -31,6 +31,7 @@ export function flattenFungi(fungi: any): Shroom | null {
     id: fungi.id,
     name: fungi.name,
     preferred_common_name: fungi.preferred_common_name ?? '',
+    german_name_dgfm: fungi.german_name_dgfm ?? '',
     alternative_common_names: sanitizeArray(fungi.alternative_common_names),
     english_common_name: fungi.english_common_name ?? '',
     ancestry: fungi.ancestry ?? '',

@@ -154,8 +154,26 @@ export function createSlug(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-export function getMushroomUrl(shroom: Shroom): string {
-  return `/mushroom/${shroom.id}-${createSlug(shroom.preferred_common_name || shroom.name)}`
+// Names of a fungus as the pages show them: iNaturalist's German name first, then the DGfM
+// name (fallback for species iNaturalist has no German name for), then the latin name.
+// Every place that shows or slugs a common name goes through these helpers.
+export interface CommonNames {
+  preferred_common_name?: string | null
+  german_name_dgfm?: string | null
+}
+
+// German name to show, or '' when the species has none
+export function getCommonName(fungus: CommonNames): string {
+  return fungus.preferred_common_name || fungus.german_name_dgfm || ''
+}
+
+// German name if there is one, else the latin name (titles, alt texts, slugs)
+export function getDisplayName(fungus: CommonNames & { name: string }): string {
+  return getCommonName(fungus) || fungus.name
+}
+
+export function getMushroomUrl(shroom: Pick<Shroom, 'id' | 'name' | 'preferred_common_name' | 'german_name_dgfm'>): string {
+  return `/mushroom/${shroom.id}-${createSlug(getDisplayName(shroom))}`
 }
 
 export interface Taxon {

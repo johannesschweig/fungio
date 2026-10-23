@@ -87,7 +87,7 @@ export function useRandomFungiWithPhoto() {
 }
 
 export function useSearchMushroomNames(queryRef: Ref<string>) {
-  const suggestions = ref<{ id: number, name: string, preferred_common_name: string | null }[]>([])
+  const suggestions = ref<{ id: number, name: string, preferred_common_name: string | null, german_name_dgfm: string | null }[]>([])
   const loading = ref(false)
   const error = ref(null)
 
@@ -116,7 +116,8 @@ export function useSearchMushroomNames(queryRef: Ref<string>) {
         .map((e: any) => ({
           id: e.node.id,
           name: e.node.name,
-          preferred_common_name: e.node.preferred_common_name
+          preferred_common_name: e.node.preferred_common_name,
+          german_name_dgfm: e.node.german_name_dgfm
         }))
     }
   })
@@ -155,6 +156,7 @@ export function useSearchShrooms() {
         id: fungi.id,
         name: fungi.name,
         preferred_common_name: fungi.preferred_common_name,
+        german_name_dgfm: fungi.german_name_dgfm,
         obs_count_ger: fungi.obs_count_ger,
         edibility: attributes.edibility,
         toxicity: attributes.toxicity,
@@ -370,6 +372,7 @@ type TaxonDescendantFungi = {
   id: number
   name: string
   preferred_common_name: string | null
+  german_name_dgfm: string | null
   ancestry: string
   obs_count_ger: number | null
 }
@@ -383,6 +386,7 @@ export type TaxonChildEntry = {
   id: number
   name: string
   preferred_common_name?: string | null
+  german_name_dgfm?: string | null // species rows only (taxa have no DGfM name)
   rank_level: number
   mushroom: TaxonChildMushroom
 }
@@ -409,6 +413,7 @@ async function enrichFungi(rows: TaxonDescendantFungi[]): Promise<TaxonChildMush
     return {
       ...row,
       preferred_common_name: row.preferred_common_name ?? undefined,
+      german_name_dgfm: row.german_name_dgfm ?? undefined,
       obs_count_ger: row.obs_count_ger ?? undefined,
       edibility: attr?.edibility ?? undefined,
       toxicity: attr?.toxicity ?? undefined,
@@ -474,9 +479,10 @@ export function useTaxonPage(taxon: Ref<Taxon | null>) {
       const pattern = `(^|/)${taxon.value.id}(/|$)`
       const { data: descendants, error: err } = await supabase
         .from('fungi')
-        .select('id, name, preferred_common_name, ancestry, obs_count_ger')
+        .select('id, name, preferred_common_name, german_name_dgfm, ancestry, obs_count_ger')
         .filter('ancestry', 'match', pattern)
         .order('obs_count_ger', { ascending: false, nullsFirst: false })
+        .order('id')
 
       if (err) throw err
 
@@ -497,6 +503,7 @@ export function useTaxonPage(taxon: Ref<Taxon | null>) {
             id: mushroom.id,
             name: mushroom.name,
             preferred_common_name: mushroom.preferred_common_name,
+            german_name_dgfm: mushroom.german_name_dgfm,
             rank_level: 10,
             mushroom
           }))

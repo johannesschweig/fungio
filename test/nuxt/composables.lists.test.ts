@@ -109,6 +109,10 @@ describe('useSearchMushroomNames (autocomplete)', () => {
     emitResult({ data: { fungiCollection: { edges: edges({ id: 1, name: 'Boletus edulis', preferred_common_name: 'Steinpilz', extra: 'ignored' }) } } })
     expect(suggestions.value).toEqual([{ id: 1, name: 'Boletus edulis', preferred_common_name: 'Steinpilz' }])
 
+    // species that only have a DGfM name keep it so the suggestion can show it
+    emitResult({ data: { fungiCollection: { edges: edges({ id: 2, name: 'russula sanguinaria', preferred_common_name: null, german_name_dgfm: 'Bluttäubling' }) } } })
+    expect(suggestions.value).toEqual([{ id: 2, name: 'russula sanguinaria', preferred_common_name: null, german_name_dgfm: 'Bluttäubling' }])
+
     query.value = 'x'
     await nextTick()
     expect(suggestions.value).toEqual([])

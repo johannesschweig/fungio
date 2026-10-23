@@ -1,4 +1,5 @@
--- Search helper column: latin name, german name and german alternative names, normalized so the
+-- Search helper column: latin name, german name (iNaturalist), DGfM name (fallback where iNaturalist has
+-- none, fungi.german_name_dgfm) and german alternative names, normalized so the
 -- search ignores case, hyphens, spaces and umlaut spelling ("wiesenchampignon", "Wiesen-Champignon",
 -- "roehrling" and "Röhrling" all match). The app normalizes the typed text the same way
 -- (normalizeSearch in app/utils/utils.ts) - keep both in sync.
@@ -19,7 +20,8 @@ CREATE OR REPLACE FUNCTION public.fungi_set_search_name() RETURNS trigger
 LANGUAGE plpgsql AS $$
 BEGIN
   NEW.search_name := public.search_normalize(
-    NEW.name || '|' || coalesce(NEW.preferred_common_name, '') || '|' || coalesce(NEW.alternative_common_names::text, '')
+    NEW.name || '|' || coalesce(NEW.preferred_common_name, '') || '|' || coalesce(NEW.german_name_dgfm, '')
+      || '|' || coalesce(NEW.alternative_common_names::text, '')
   );
   RETURN NEW;
 END
@@ -27,10 +29,11 @@ $$;
 
 DROP TRIGGER IF EXISTS fungi_search_name_trg ON public.fungi;
 CREATE TRIGGER fungi_search_name_trg
-  BEFORE INSERT OR UPDATE OF name, preferred_common_name, alternative_common_names ON public.fungi
+  BEFORE INSERT OR UPDATE OF name, preferred_common_name, german_name_dgfm, alternative_common_names ON public.fungi
   FOR EACH ROW EXECUTE FUNCTION public.fungi_set_search_name();
 
--- backfill all existing rows (fires the trigger)
+-- backfill all existing rows (fires the trigger); this is also what puts the 734 DGfM names
+-- into search_name after the trigger above was extended
 UPDATE public.fungi SET name = name;
 
 NOTIFY pgrst, 'reload schema';

@@ -61,6 +61,25 @@ useSeoMeta({
       </p>
     </section>
 
+    <section id="quellen-lizenzen" class="mb-8 scroll-mt-20">
+      <h2 class="text-xl font-bold text-tan-900 mb-2">Quellen &amp; Lizenzen</h2>
+      <p class="mb-3">
+        <strong>Deutsche Pilznamen:</strong> Wo iNaturalist keinen deutschen Namen hat, verwenden wir den Namen aus der
+        Taxonliste der Pilze Deutschlands der DGfM.
+      </p>
+      <p class="mb-3">
+        Quelle: Dämmrich F., <em>Taxon list of fungi and fungal-like organisms from Germany compiled by the DGfM</em>,
+        SNSB IT Center, München,
+        <a href="https://doi.org/10.15468/gtvmjw" target="_blank" rel="noopener" class="link">doi:10.15468/gtvmjw</a>,
+        Lizenz <a href="https://creativecommons.org/licenses/by/4.0/deed.de" target="_blank" rel="noopener"
+          class="link">CC BY 4.0</a>.
+      </p>
+      <p>
+        Wir haben Schreibweisen vereinheitlicht und je Art den Hauptnamen übernommen. Die DGfM und der Autor
+        unterstützen Fungio nicht.
+      </p>
+    </section>
+
     <section class="space-y-6">
       <h2 class="text-2xl font-bold text-tan-900">Haftungsausschluss</h2>
 

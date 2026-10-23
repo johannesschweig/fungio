@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getMushroomUrl, GERMAN_ALPHABET  } from '@/utils/utils'
+import { getMushroomUrl, getDisplayName, getCommonName, GERMAN_ALPHABET  } from '@/utils/utils'
 
 const route = useRoute()
 const letter = computed(() => String(route.params.letter).toUpperCase())
@@ -40,9 +40,9 @@ const alphabet = GERMAN_ALPHABET.split('')
         <NuxtLink :to="getMushroomUrl(mushroom)" :key="mushroom.name"
           class="block px-3 py-2 hover:bg-stone-100 rounded transition-colors">
           <span class="font-medium">
-            {{ mushroom.preferred_common_name || mushroom.name }}
+            {{ getDisplayName(mushroom) }}
           </span>
-          <span v-if="mushroom.preferred_common_name" class="text-sm text-stone-500 ml-2">
+          <span v-if="getCommonName(mushroom)" class="text-sm text-stone-500 ml-2">
             ({{ mushroom.name }})
           </span>
         </NuxtLink>

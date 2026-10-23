@@ -12,7 +12,8 @@ SELECT
   CASE 
     WHEN (a.season_to - a.season_from + 1) >= 12 THEN f.obs_count_ger * 0.1
     ELSE f.obs_count_ger 
-  END as seasonal_priority
+  END as seasonal_priority,
+  f.german_name_dgfm -- DGfM fallback name; appended last because CREATE OR REPLACE VIEW can only add columns at the end
 FROM fungi f
 JOIN attributes a ON f.id = a.fungi_id;
 

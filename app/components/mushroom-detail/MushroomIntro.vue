@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { getSeasonText, getFrequencyLabel } from '@/utils/utils'
+import { getSeasonText, getFrequencyLabel, getDisplayName } from '@/utils/utils'
 import type Shroom from '@/types/Shroom'
 import { capitalizeFirstLetter } from '@/utils/utils';
 
@@ -8,7 +8,7 @@ const props = defineProps<{ shroom: Shroom }>()
 
 const introText = computed(() => {
   const s = props.shroom
-  const name = s.preferred_common_name || s.name
+  const name = getDisplayName(s)
 
   const seasonText = getSeasonText(s.season_from, s.season_to)
   // how likely you are to actually encounter this species — more useful and reads

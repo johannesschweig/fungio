@@ -2,7 +2,8 @@ export default interface Shroom {
   id: number
   rank_level?: number
   name: string // latin name
-  preferred_common_name?: string
+  preferred_common_name?: string // iNaturalist
+  german_name_dgfm?: string // DGfM taxon list, only where iNaturalist has no German name
   alternative_common_names?: string[]
   english_common_name?: string
   ancestry: string

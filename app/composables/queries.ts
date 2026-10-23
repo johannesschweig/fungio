@@ -10,6 +10,7 @@ export const GET_SHROOM_BY_ID = gql`
         rank_level
         name
         preferred_common_name
+        german_name_dgfm
         alternative_common_names
         obs_count_ger
         ancestry
@@ -78,6 +79,7 @@ query SearchMushroomNames($search: String) {
         id
         name
         preferred_common_name
+        german_name_dgfm
       }
     }
   }
@@ -98,6 +100,7 @@ query SearchMushroom($search: String) {
         id
         name
         preferred_common_name
+        german_name_dgfm
         obs_count_ger
         attributes {
           edibility
@@ -127,6 +130,7 @@ export const GET_LOOK_ALIKE_FUNGI = gql`
             id
             name
             preferred_common_name
+            german_name_dgfm
             obs_count_ger
             photosCollection(first: 1) {
               edges {
@@ -161,6 +165,7 @@ export const GET_MUSHROOMS_BY_SEASON = gql`
           id
           name
           preferred_common_name
+          german_name_dgfm
           obs_count_ger
           photo_url
           season_from
@@ -190,6 +195,7 @@ export const GET_TOP_EDIBLE_MUSHROOMS = gql`
           id
           name
           preferred_common_name
+          german_name_dgfm
           obs_count_ger
           photo_url
           season_from
@@ -215,6 +221,7 @@ export const GET_TOP_REGIONAL = gql`
             id
             name
             preferred_common_name
+            german_name_dgfm
             rank_level
             ancestry
             attributes {

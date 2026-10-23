@@ -50,7 +50,7 @@ useSchemaOrg([
     description: `Übersicht der am häufigsten vorkommenden Pilze Deutschlands für die Jahreszeit: ${$t(season.value?.key)}.`,
     itemListElement: seasonalMushrooms.value.map((shroom: Shroom, index: number) => ({
       position: index + 1,
-      name: shroom.preferred_common_name || shroom.name,
+      name: getDisplayName(shroom),
       url: `https://fungio.de${getMushroomUrl(shroom)}`,
       image: shroom.photos?.[0]?.url || '',
     }))

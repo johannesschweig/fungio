@@ -12,12 +12,16 @@ function createSlug(name: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
-// PostgREST caps every response at ~1500 rows, so large tables have to be read in pages
+type SitemapRow = { id: number, name: string, preferred_common_name: string | null, german_name_dgfm?: string | null }
+
+// PostgREST caps every response at ~1500 rows, so large tables have to be read in pages.
+// Only `fungi` has the DGfM fallback name; slugs must match getMushroomUrl() in app/utils/utils.ts.
 const PAGE_SIZE = 1000
 async function fetchAll(table: 'fungi' | 'taxa', filter?: (q: any) => any) {
-  const rows: { id: number, name: string, preferred_common_name: string | null }[] = []
+  const rows: SitemapRow[] = []
+  const columns = table === 'fungi' ? 'id, name, preferred_common_name, german_name_dgfm' : 'id, name, preferred_common_name'
   for (let from = 0; ; from += PAGE_SIZE) {
-    let query = supabase.from(table).select('id, name, preferred_common_name')
+    let query = supabase.from(table).select(columns)
     if (filter) query = filter(query)
     const { data, error } = await query.order('id').range(from, from + PAGE_SIZE - 1)
     if (error) throw error
@@ -26,8 +30,8 @@ async function fetchAll(table: 'fungi' | 'taxa', filter?: (q: any) => any) {
   }
 }
 
-const detailUrl = (prefix: string, row: { id: number, name: string, preferred_common_name: string | null }) =>
-  ({ loc: `${prefix}/${row.id}-${createSlug(row.preferred_common_name || row.name)}` })
+const detailUrl = (prefix: string, row: SitemapRow) =>
+  ({ loc: `${prefix}/${row.id}-${createSlug(row.preferred_common_name || row.german_name_dgfm || row.name)}` })
 
 export default defineSitemapEventHandler(async () => {
   const seasonPages = ['spring', 'summer', 'autumn', 'winter'].map(season => ({ loc: `/season/${season}` }))

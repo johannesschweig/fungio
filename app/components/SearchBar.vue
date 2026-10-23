@@ -64,14 +64,14 @@ watch(() => store.search, (newSearch) => {
         <ComboboxOptions
           class="absolute left-0 right-0 mt-1 bg-white border border-stone-300 rounded-lg shadow z-10 max-h-48 overflow-y-auto">
           <ComboboxOption v-for="option in suggestions" :key="option.id"
-            :value="option.preferred_common_name || option.name" v-slot="{ active, selected, disabled }">
+            :value="getDisplayName(option)" v-slot="{ active, selected, disabled }">
             <span :class="[
               'block px-4 py-2 cursor-pointer',
               active ? 'bg-amber-100 text-amber-700 font-semibold' : '',
               selected ? 'font-bold' : ''
             ]">
-              <template v-if="option.preferred_common_name">
-                {{ option.preferred_common_name }}
+              <template v-if="getCommonName(option)">
+                {{ getCommonName(option) }}
                 <span class="italic text-stone-400">({{ option.name }})</span>
               </template>
               <span v-else class="italic">{{ option.name }}</span>

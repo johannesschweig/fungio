@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   GERMAN_ALPHABET, GERMAN_MONTHS, SEASONS, TAXON_PAGE_RANKS, stateNames,
   capitalizeFirstLetter, createSlug, getFrequencyLabel, getInaturalistImageUrl, getMushroomIcon,
+  getCommonName, getDisplayName,
   getMushroomUrl, getNested, getRankLabelKey, getRankLabelPluralKey, getSeasonText, getTaxonUrl,
   normalizeSearch, seedToday, toHexColor, toSearchPattern, toTwColorClass,
 } from '@/utils/utils'
@@ -28,10 +29,30 @@ describe('URLs', () => {
     expect(getMushroomUrl({ id: 7, name: 'Amanita muscaria', preferred_common_name: '', ancestry: '' }))
       .toBe('/mushroom/7-amanita-muscaria')
   })
+  it('uses the DGfM name for the slug when iNaturalist has none, but prefers the iNaturalist name', () => {
+    expect(getMushroomUrl({ id: 9, name: 'russula sanguinaria', german_name_dgfm: 'Bluttäubling', ancestry: '' }))
+      .toBe('/mushroom/9-bluttaeubling')
+    expect(getMushroomUrl({ id: 9, name: 'russula x', preferred_common_name: 'Fliegenpilz', german_name_dgfm: 'Anderer', ancestry: '' }))
+      .toBe('/mushroom/9-fliegenpilz')
+  })
   it('builds taxon URLs as /taxa/<id>-<slug>', () => {
     expect(getTaxonUrl({ id: 3, name: 'Boletaceae', preferred_common_name: 'Dickröhrlingsverwandte' }))
       .toBe('/taxa/3-dickroehrlingsverwandte')
     expect(getTaxonUrl({ id: 3, name: 'Boletaceae', preferred_common_name: null })).toBe('/taxa/3-boletaceae')
+  })
+})
+
+describe('German name fallback (iNaturalist -> DGfM -> latin)', () => {
+  const latin = { name: 'russula sanguinaria' }
+  it('prefers the iNaturalist name, then the DGfM name, treating empty strings as missing', () => {
+    expect(getCommonName({ preferred_common_name: 'Fliegenpilz', german_name_dgfm: 'Anderer' })).toBe('Fliegenpilz')
+    expect(getCommonName({ preferred_common_name: null, german_name_dgfm: 'Bluttäubling' })).toBe('Bluttäubling')
+    expect(getCommonName({ preferred_common_name: '', german_name_dgfm: 'Bluttäubling' })).toBe('Bluttäubling')
+    expect(getCommonName({})).toBe('')
+  })
+  it('displays the latin name as the last resort', () => {
+    expect(getDisplayName({ ...latin, german_name_dgfm: 'Bluttäubling' })).toBe('Bluttäubling')
+    expect(getDisplayName({ ...latin, preferred_common_name: '', german_name_dgfm: '' })).toBe('russula sanguinaria')
   })
 })
 

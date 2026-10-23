@@ -23,7 +23,7 @@ useSchemaOrg([
     description: `Die am häufigsten gemeldeten Pilzarten in ${stateName.value} basierend auf aktuellen Beobachtungsdaten.`,
     itemListElement: mushrooms.value.map((shroom: Shroom, index: number) => ({
       position: index + 1,
-      name: shroom.preferred_common_name || shroom.name,
+      name: getDisplayName(shroom),
       url: `https://fungio.de${getMushroomUrl(shroom)}`,
       image: shroom.photos?.[0]?.url || '',
     }))

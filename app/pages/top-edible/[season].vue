@@ -28,7 +28,7 @@ useSchemaOrg([
     description: `Eine kuratierte Liste der schmackhaftesten Speisepilze Deutschlands${seasonLabel(activeSeason.value)}.`,
     itemListElement: mushrooms.value.map((shroom: Shroom, index: number) => ({
       position: index + 1,
-      name: shroom.preferred_common_name || shroom.name,
+      name: getDisplayName(shroom),
       url: `https://fungio.de${getMushroomUrl(shroom)}`,
       image: shroom.photos?.[0]?.url || '',
     }))

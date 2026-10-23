@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMushroomById, useMushroomLookAlikes } from '@/composables/composables'
-import { createSlug } from '@/utils/utils'
+import { createSlug, getDisplayName, getCommonName } from '@/utils/utils'
 import MushroomHeader from '@/components/mushroom-detail/MushroomHeader.vue'
 import MushroomGallery from '@/components/mushroom-detail/MushroomGallery.vue'
 import MushroomQuickStats from '@/components/mushroom-detail/MushroomQuickStats.vue'
@@ -30,7 +30,7 @@ const { lookAlikes } = useMushroomLookAlikes(lookAlikeIds)
 watch(shroom, (newShroom) => {
   if (newShroom && route.params.id) {
     const currentParam = String(route.params.id)
-    const slug = createSlug(newShroom.preferred_common_name || newShroom.name)
+    const slug = createSlug(getDisplayName(newShroom))
     const newParam = `${newShroom.id}-${slug}`
     if (currentParam !== newParam) navigateTo(`/mushroom/${newParam}`, { replace: true, redirectCode: 301 })
   }
@@ -38,19 +38,19 @@ watch(shroom, (newShroom) => {
 
 const fullUrl = computed(() => {
   if (!shroom.value) return `https://fungio.de/mushroom/${id.value}`
-  const slug = createSlug(shroom.value.preferred_common_name || shroom.value.name)
+  const slug = createSlug(getDisplayName(shroom.value))
   return `https://fungio.de/mushroom/${shroom.value.id}-${slug}`
 })
 // SEO schema and meta tags
 const title = computed(() => {
   if (!shroom.value) return 'Pilz wird geladen... | Fungio'
-  const name = shroom.value.preferred_common_name || shroom.value.name
+  const name = getDisplayName(shroom.value)
   return `${name} - Pilzinformationen | Fungio`
 })
 
 const description = computed(() => {
   if (!shroom.value) return 'Lade Pilzinformationen...'
-  const name = shroom.value.preferred_common_name || shroom.value.name
+  const name = getDisplayName(shroom.value)
   const latinName = shroom.value.name
   const edibility = shroom.value.edibility ? capitalizeFirstLetter($t(shroom.value.edibility)) : null
   let desc = `${name} (${latinName})`
@@ -71,7 +71,8 @@ useSchemaOrg([
   () => ({
     '@type': 'Taxon',
     '@id': `${fullUrl.value}#taxon`,
-    name: shroom.value?.preferred_common_name,
+    // only a real German name: for species without one the latin name goes in scientificName alone
+    name: shroom.value ? getCommonName(shroom.value) || undefined : undefined,
     scientificName: shroom.value?.name,
     description: description.value,
     image: image.value,

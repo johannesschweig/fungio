@@ -3,7 +3,7 @@ import MushroomIcon from '@/assets/mushroom.svg'
 import type Shroom from '@/types/Shroom'
 import { computed } from 'vue';
 import { useStore } from '@/stores/store'
-import { getMushroomIcon, getMushroomUrl, capitalizeFirstLetter, normalizeSearch, GERMAN_MONTHS } from '@/utils/utils'
+import { getMushroomIcon, getMushroomUrl, getCommonName, getDisplayName, capitalizeFirstLetter, normalizeSearch, GERMAN_MONTHS } from '@/utils/utils'
 
 const props = withDefaults(defineProps<{
   shroom: Shroom,
@@ -23,6 +23,8 @@ const props = withDefaults(defineProps<{
 const store = useStore()
 
 const iconData = computed(() => getMushroomIcon(props.shroom))
+const commonName = computed(() => getCommonName(props.shroom))
+const displayName = computed(() => getDisplayName(props.shroom))
 
 function highlightMatch(text: string) {
   text = capitalizeFirstLetter(text)
@@ -67,15 +69,15 @@ const seasonRange = computed(() => {
     class="grid grid-cols-[80px_1fr_auto] gap-2 md:gap-3 items-center hover:bg-white rounded-lg">
     <NuxtImg v-if="shroom.photos && shroom.photos.length && shroom.photos?.[0].url"
       :src="proxyPhotoSource(shroom.photos?.[0].url, 'medium')" preset="photo" :width="IMAGE_WIDTHS.thumb" densities="x1"
-      :alt="shroom.preferred_common_name || shroom.name"
+      :alt="displayName"
       loading="lazy" class="w-20 h-20 object-cover mr-4 rounded-lg" />
     <div v-else class="w-20 h-20 bg-stone-200 mr-4 rounded-lg flex items-center justify-center">
       <MushroomIcon class="w-12 h-12 text-stone-400" />
     </div>
 
     <div class="min-w-0">
-      <div v-if="shroom.preferred_common_name" class="text-lg text-stone-900 font-semibold"
-        v-html="highlightMatch(shroom.preferred_common_name)"></div>
+      <div v-if="commonName" class="text-lg text-stone-900 font-semibold"
+        v-html="highlightMatch(commonName)"></div>
       <div class="text-sm md:text-base italic text-stone-500 max-w-[25ch] truncate"
         v-html="highlightMatch(shroom.name)"></div>
     </div>
@@ -93,7 +95,7 @@ const seasonRange = computed(() => {
     <div class="relative h-48 w-full overflow-hidden">
       <NuxtImg v-if="shroom.photos && shroom.photos.length && shroom.photos?.[0].url"
         :src="proxyPhotoSource(shroom.photos?.[0].url, 'large')" preset="photo" :width="IMAGE_WIDTHS.card" densities="x1"
-        :alt="shroom.preferred_common_name || shroom.name" class="w-full h-full object-cover"
+        :alt="displayName" class="w-full h-full object-cover"
         :loading="priority ? 'eager' : 'lazy'" :fetchpriority="priority ? 'high' : undefined" />
       <div v-else class="w-full h-full bg-stone-100 flex items-center justify-center">
         <MushroomIcon class="w-16 h-16 text-stone-300" />
@@ -116,9 +118,9 @@ const seasonRange = computed(() => {
         </span>
       </div>
 
-      <h2 class="text-xl text-stone-900 font-bold font-serif mb-1">{{ shroom.preferred_common_name ||
+      <h2 class="text-xl text-stone-900 font-bold font-serif mb-1">{{ commonName ||
         capitalizeFirstLetter(shroom.name) }}</h2>
-      <p v-if="shroom.preferred_common_name" class="text-sm italic text-stone-500 mb-4">{{
+      <p v-if="commonName" class="text-sm italic text-stone-500 mb-4">{{
         capitalizeFirstLetter(shroom.name) }}</p>
     </div>
   </NuxtLink>
