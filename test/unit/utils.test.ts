@@ -119,8 +119,8 @@ describe('getMushroomIcon', () => {
     expect(getMushroomIcon({ ...base, toxicity: 'toxic', edibility: 'good' }).text).toBe('Giftig')
   })
   it('maps edibility levels', () => {
-    expect(getMushroomIcon({ ...base, edibility: 'excellent' }).text).toBe('Ausgezeichnet')
-    expect(getMushroomIcon({ ...base, edibility: 'good' }).text).toBe('Gut')
+    expect(getMushroomIcon({ ...base, edibility: 'excellent' }).text).toBe('Sehr gut')
+    expect(getMushroomIcon({ ...base, edibility: 'good' }).text).toBe('Essbar')
     expect(getMushroomIcon({ ...base, edibility: 'inedible' }).text).toBe('Ungenießbar')
   })
   it('gives every non-empty descriptor an icon and a style', () => {

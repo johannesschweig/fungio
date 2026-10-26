@@ -66,7 +66,8 @@ describe('<Card>', () => {
     it.each([
       [{ toxicity: 'deadly' }, 'Tödlich giftig'],
       [{ toxicity: 'toxic' }, 'Giftig'],
-      [{ edibility: 'excellent' }, 'Ausgezeichnet'],
+      [{ edibility: 'excellent' }, 'Sehr gut'],
+      [{ edibility: 'good' }, 'Essbar'],
     ] as const)('flags %j as "%s"', async (attrs, label) => {
       const wrapper = await mount({ shroom: shroom(attrs as any) })
       expect(wrapper.find(`[title="${label}"]`).exists()).toBe(true)
@@ -152,9 +153,15 @@ describe('<Card>', () => {
 describe('<MushroomIntro>', () => {
   const mount = (overrides: Partial<Shroom>) => mountSuspended(MushroomIntro, { props: { shroom: shroom(overrides) } })
 
-  it('calls an edible mushroom a Speisepilz with its Speisewert', async () => {
+  it('calls an edible mushroom a Speisepilz', async () => {
     const text = (await mount({ edibility: 'good' })).text()
-    expect(text).toContain('ein Speisepilz mit dem Speisewert')
+    expect(text).toContain('ein Speisepilz')
+    expect(text).not.toContain('sehr guter')
+  })
+
+  it('calls a grade-1 mushroom a sehr guter Speisepilz', async () => {
+    const text = (await mount({ edibility: 'excellent' })).text()
+    expect(text).toContain('ein sehr guter Speisepilz')
   })
 
   it('does not call an inedible mushroom a Speisepilz', async () => {

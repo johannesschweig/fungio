@@ -105,9 +105,9 @@ export function getMushroomIcon(shroom: Shroom): MushroomIconData {
 
   switch (shroom.edibility) {
     case 'excellent':
-      return { icon: EdibleExcellentIcon, class: 'text-emerald-800 bg-emerald-100', text: 'Ausgezeichnet' }
+      return { icon: EdibleExcellentIcon, class: 'text-emerald-800 bg-emerald-100', text: 'Sehr gut' }
     case 'good':
-      return { icon: EdibleGoodIcon, class: 'text-emerald-700 bg-emerald-50', text: 'Gut' }
+      return { icon: EdibleGoodIcon, class: 'text-emerald-700 bg-emerald-50', text: 'Essbar' }
     case 'inedible':
       return { icon: InedibleIcon, class: 'text-stone-700 bg-stone-100', text: 'Ungenießbar' }
     default:

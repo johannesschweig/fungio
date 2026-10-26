@@ -30,7 +30,8 @@ const introText = computed(() => {
       <span v-if="shroom.toxicity" class="text-red-800 font-medium">ein
         {{ shroom.toxicity === 'deadly' ? 'tödlich giftiger' : 'giftiger' }} Pilz</span>
       <span v-else-if="shroom.edibility === 'inedible'">ein ungenießbarer Pilz</span>
-      <span v-else-if="shroom.edibility">ein Speisepilz mit dem Speisewert <strong>{{ $t(shroom.edibility) }}</strong></span>
+      <span v-else-if="shroom.edibility === 'excellent'">ein <strong>sehr guter</strong> Speisepilz</span>
+      <span v-else-if="shroom.edibility">ein Speisepilz</span>
       <span v-else>ein Pilz</span>{{ introText.whereWhen }}.
     </p>
   </div>
