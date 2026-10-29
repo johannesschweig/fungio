@@ -15,7 +15,7 @@ This repo is public. The data pipeline lives in a separate private repo (`../fun
 - **Pages**: `app/pages/`: mushroom detail (`mushroom/[id].vue`), taxonomy (`taxa/`, based on `ancestry` paths in the `fungi` table), overviews by letter / season / region / top edible mushrooms.
 - **Migrations**: `app/migrations/*.sql` are loose SQL snippets (no migration tool), run manually in the Supabase SQL editor. Add new snippets there but never execute them automatically (see below).
 - **AUDIT.md** (repo root): numbered list of technical inefficiencies (caching, data access, bundle, images) with measurements and a suggested fix. Tick off finished items (`[x]` + date and commit title), never renumber. "Do item N" refers to this list.
-- **TODO.md** (repo root): running task list (`TODO` / `NOTES` / `DONE` / `DROPPED`). When a task is finished, move it from `TODO` to `DONE` with a short note on what was done; don't just delete it.
+- **TODO.md** (parent folder `../TODO.md`, shared with `fungio-data`, not part of this repo): running task list (`TODO` / `NOTES` / `DONE` / `DROPPED`, items tagged `[web]` / `[data]` / `[both]`). When a task is finished, move it from `TODO` to `DONE` (under the `fungio-web` heading) with a short note on what was done; don't just delete it.
 
 ## Tests
 
