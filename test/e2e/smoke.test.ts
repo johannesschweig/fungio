@@ -233,6 +233,8 @@ describe('sitemap + robots.txt', () => {
     expect(blocked).toContain('User-Agent: ClaudeBot')
     expect(blocked).toContain('User-Agent: QlyzeBot')
     expect(blocked).toContain('User-Agent: Reflectionbot')
+    expect(blocked).toContain('User-Agent: ElevenlabsCrawler')
+    expect(blocked).toContain('User-Agent: AIWebIndex')
     expect(blocked).toContain('Disallow: /')
     expect(robots).toMatch(/User-Agent: \*\s+Disallow:\s*\n/)
     expect(robots).toContain('Sitemap: https://fungio.de/sitemap_index.xml')

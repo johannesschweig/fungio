@@ -20,6 +20,8 @@ User-Agent: MJ12bot
 User-Agent: DotBot
 User-Agent: QlyzeBot
 User-Agent: Reflectionbot
+User-Agent: ElevenlabsCrawler
+User-Agent: AIWebIndex
 Disallow: /
 
 User-Agent: *
